@@ -1,95 +1,91 @@
 <!DOCTYPE html>
 <html lang="bs">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Trenažer enklitika</title>
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
       background-color: #fdf6f0;
+      font-family: 'Segoe UI', sans-serif;
       color: #333;
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       padding: 30px;
     }
 
     h2 {
-      color: #555;
+      color: #444;
+      margin-bottom: 20px;
     }
 
     .sentence-container {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
-      gap: 8px;
-      margin: 20px 0;
-      background-color: #fff9f4;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 30px;
       padding: 20px;
       border-radius: 12px;
+      background-color: #fff9f4;
       border: 1px solid #e3d5ca;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      min-height: 80px;
+      max-width: 90%;
     }
 
-    .word-slot {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 8px 12px;
-      min-width: 50px;
-      border-radius: 10px;
+    .word-block {
+      padding: 8px 14px;
       background-color: #ffffff;
       border: 1px solid #ddd;
-      font-size: 16px;
-      position: relative;
-    }
-
-    .drop-target {
-      width: 10px;
-      height: 36px;
-      margin: 0 4px;
-      background-color: transparent;
-      border: 2px dashed transparent;
-      transition: background-color 0.2s, border-color 0.2s;
-    }
-
-    .drop-target.drag-over {
-      border-color: #ffc9c9;
-      background-color: #ffeaea;
-      border-radius: 5px;
-    }
-
-    .clitic-option {
-      display: inline-block;
-      background-color: #ffe8d6;
-      color: #444;
-      border: 1px solid #f0d5c9;
-      padding: 8px 12px;
-      margin: 8px;
       border-radius: 10px;
-      cursor: grab;
-      transition: transform 0.1s ease;
+      font-size: 16px;
+      transition: margin 0.2s;
+      flex-shrink: 0;
     }
 
-    .clitic-option:active {
+    .drop-slot {
+      width: 8px;
+      transition: width 0.2s, background-color 0.2s;
+    }
+
+    .drop-slot.over {
+      width: 40px;
+      background-color: #ffeaea;
+      border-radius: 6px;
+    }
+
+    .enclitic-option {
+      display: inline-block;
+      margin: 6px;
+      padding: 8px 12px;
+      background-color: #ffe8d6;
+      border-radius: 10px;
+      border: 1px solid #f0d5c9;
+      cursor: grab;
+      user-select: none;
+    }
+
+    .enclitic-option:active {
       transform: scale(0.95);
     }
 
-    #cliticOptions {
+    #encliticOptions {
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
+      margin-bottom: 20px;
     }
 
     #feedback {
-      margin-top: 20px;
       font-weight: bold;
+      margin-top: 15px;
     }
 
     button {
-      margin-top: 30px;
+      margin-top: 25px;
       padding: 10px 20px;
       font-size: 15px;
       border: none;
@@ -97,7 +93,6 @@
       background-color: #f0baba;
       color: white;
       cursor: pointer;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
 
     button:hover {
@@ -107,12 +102,11 @@
 </head>
 <body>
 
-<h2>Ubaci enklitiku na pravo mjesto</h2>
+<h2>Ubaci enklitike na pravo mjesto</h2>
 
 <div id="sentence" class="sentence-container"></div>
 
-<p>Odaberi i prevuci enklitiku:</p>
-<div id="cliticOptions"></div>
+<div id="encliticOptions"></div>
 
 <div id="feedback"></div>
 
@@ -122,101 +116,105 @@
   const examples = [
     {
       parts: ['Ana', 'vidjela', 'Marka', 'jučer.'],
-      clitic: 'je',
+      enclitics: ['je'],
+      correctIndexes: [1],
       distractors: ['mu', 'li']
     },
     {
-      parts: ['Petar', 'kupio', 'novi', 'bicikl.'],
-      clitic: 'je',
-      distractors: ['ga', 'li']
-    },
-    {
-      parts: ['Znaš', 'gdje', 'on', 'živi?'],
-      clitic: 'li',
-      distractors: ['se', 'mu']
+      parts: ['Petar', 'dao', 'poklon', 'djetetu', 'jučer.'],
+      enclitics: ['mu', 'je'],
+      correctIndexes: [1, 2],
+      distractors: ['ga', 'se']
     }
   ];
 
   let currentExample = {};
+  let inserted = [];
 
   function loadExample() {
     const sentence = document.getElementById('sentence');
-    const cliticOptions = document.getElementById('cliticOptions');
+    const encliticOptions = document.getElementById('encliticOptions');
     const feedback = document.getElementById('feedback');
     sentence.innerHTML = '';
-    cliticOptions.innerHTML = '';
+    encliticOptions.innerHTML = '';
     feedback.textContent = '';
+    inserted = [];
 
     currentExample = examples[Math.floor(Math.random() * examples.length)];
 
-    currentExample.parts.forEach((word, i) => {
-      // Dropzone before each word
+    for (let i = 0; i <= currentExample.parts.length; i++) {
       const drop = document.createElement('div');
-      drop.className = 'drop-target';
+      drop.className = 'drop-slot';
       drop.dataset.index = i;
       drop.addEventListener('dragover', e => {
         e.preventDefault();
-        drop.classList.add('drag-over');
+        drop.classList.add('over');
       });
-      drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
+      drop.addEventListener('dragleave', () => {
+        drop.classList.remove('over');
+      });
       drop.addEventListener('drop', e => {
         e.preventDefault();
-        drop.classList.remove('drag-over');
-        const data = e.dataTransfer.getData('text/plain');
-        checkAnswer(i, data);
+        drop.classList.remove('over');
+        const enclitic = e.dataTransfer.getData('text/plain');
+        if (inserted.includes(enclitic)) return; // Не вставлять повторно
+        inserted.push(enclitic);
+
+        const word = document.createElement('div');
+        word.className = 'word-block';
+        word.textContent = enclitic;
+        drop.insertAdjacentElement('afterend', word);
+
+        if (inserted.length === currentExample.enclitics.length) {
+          checkAnswer();
+        }
       });
       sentence.appendChild(drop);
 
-      const wordEl = document.createElement('div');
-      wordEl.className = 'word-slot';
-      wordEl.textContent = word;
-      sentence.appendChild(wordEl);
-    });
+      if (i < currentExample.parts.length) {
+        const wordEl = document.createElement('div');
+        wordEl.className = 'word-block';
+        wordEl.textContent = currentExample.parts[i];
+        sentence.appendChild(wordEl);
+      }
+    }
 
-    // Add one final dropzone at the end
-    const finalDrop = document.createElement('div');
-    finalDrop.className = 'drop-target';
-    finalDrop.dataset.index = currentExample.parts.length;
-    finalDrop.addEventListener('dragover', e => {
-      e.preventDefault();
-      finalDrop.classList.add('drag-over');
-    });
-    finalDrop.addEventListener('dragleave', () => finalDrop.classList.remove('drag-over'));
-    finalDrop.addEventListener('drop', e => {
-      e.preventDefault();
-      finalDrop.classList.remove('drag-over');
-      const data = e.dataTransfer.getData('text/plain');
-      checkAnswer(currentExample.parts.length, data);
-    });
-    sentence.appendChild(finalDrop);
-
-    // Mix correct clitic with distractors
-    const allOptions = [...currentExample.distractors, currentExample.clitic].sort(() => Math.random() - 0.5);
-    allOptions.forEach(c => {
+    const allOptions = [...currentExample.enclitics, ...currentExample.distractors].sort(() => Math.random() - 0.5);
+    allOptions.forEach(text => {
       const opt = document.createElement('div');
-      opt.className = 'clitic-option';
-      opt.textContent = c;
+      opt.className = 'enclitic-option';
+      opt.textContent = text;
       opt.draggable = true;
       opt.addEventListener('dragstart', e => {
-        e.dataTransfer.setData('text/plain', c);
+        e.dataTransfer.setData('text/plain', text);
       });
-      cliticOptions.appendChild(opt);
+      encliticOptions.appendChild(opt);
     });
   }
 
-  function checkAnswer(index, clitic) {
-    const correctIndex = currentExample.parts.findIndex((_, i) => {
-      const test = [...currentExample.parts];
-      test.splice(i, 0, clitic);
-      return test.join(' ') === [...currentExample.parts.slice(0, index), clitic, ...currentExample.parts.slice(index)].join(' ');
-    });
+  function checkAnswer() {
+    const allWords = Array.from(document.querySelectorAll('.sentence-container .word-block')).map(e => e.textContent);
+    const actualEnclitics = allWords.filter(word => currentExample.enclitics.includes(word));
+
+    let correct = true;
+    let encliticPointer = 0;
+
+    for (let i = 0; i < allWords.length; i++) {
+      if (allWords[i] === currentExample.enclitics[encliticPointer]) {
+        if (i !== currentExample.correctIndexes[encliticPointer] + encliticPointer) {
+          correct = false;
+        }
+        encliticPointer++;
+        if (encliticPointer >= currentExample.enclitics.length) break;
+      }
+    }
 
     const feedback = document.getElementById('feedback');
-    if (clitic === currentExample.clitic && index === correctIndex) {
+    if (correct && encliticPointer === currentExample.enclitics.length) {
       feedback.textContent = '✅ Tačno!';
       feedback.style.color = 'green';
     } else {
-      feedback.textContent = `❌ Nije tačno. Pokušaj ponovo.`;
+      feedback.textContent = '❌ Nije tačno. Pokušaj ponovo.';
       feedback.style.color = 'red';
     }
   }
