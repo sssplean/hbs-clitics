@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="bs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Trenažer Enklitika</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 20px;
+    }
+
+    .flex-container {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .word, .dropzone {
+      border: 1px solid #ccc;
+      padding: 8px 12px;
+      min-width: 50px;
+      text-align: center;
+      border-radius: 5px;
+      background-color: #f9f9f9;
+    }
+
+    .dropzone {
+      background-color: #e6f7ff;
+    }
+
+    .clitic {
+      display: inline-block;
+      background-color: #d0ebff;
+      padding: 8px 12px;
+      border-radius: 5px;
+      border: 1px solid #aaa;
+      cursor: grab;
+    }
+
+    #feedback {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<h2>Ubaci enklitiku na pravo mjesto:</h2>
+
+<div id="sentence" class="flex-container"></div>
+
+<p>Prevuci enklitiku:</p>
+<div id="cliticOptions"></div>
+
+<div id="feedback"></div>
+
+<script>
+  const examples = [
+    {
+      parts: ['Ana', '', 'vidjela', 'Marka', 'jučer.'],
+      clitic: 'je',
+      correctIndex: 1,
+      explanation: 'Enklitika "je" dolazi odmah nakon prvog naglašenog elementa — ovdje to je "Ana".'
+    },
+    {
+      parts: ['Petar', '', 'kupio', 'novi auto.'],
+      clitic: 'je',
+      correctIndex: 1,
+      explanation: 'Enklitika "je" dolazi odmah iza "Petar".'
+    },
+    {
+      parts: ['', 'Li', 'znaš', 'gdje', 'je', 'on?'],
+      clitic: 'li',
+      correctIndex: 0,
+      explanation: 'Upitna enklitika "li" ide odmah iza glagola u inverziji: "Znaš li gdje je on?"'
+    }
+  ];
+
+  let currentExample = {};
+
+  function loadExample() {
+    const sentence = document.getElementById('sentence');
+    const cliticOptions = document.getElementById('cliticOptions');
+    const feedback = document.getElementById('feedback');
+    sentence.innerHTML = '';
+    cliticOptions.innerHTML = '';
+    feedback.textContent = '';
+
+    currentExample = examples[Math.floor(Math.random() * examples.length)];
+
+    currentExample.parts.forEach((part, idx) => {
+      const el = document.createElement('div');
+      if (part === '') {
+        el.className = 'dropzone';
+        el.dataset.index = idx;
+        el.addEventListener('dragover', e => e.preventDefault());
+        el.addEventListener('drop', handleDrop);
+      } else {
+        el.className = 'word';
+        el.textContent = part;
+      }
+      sentence.appendChild(el);
+    });
+
+    const clitic = document.createElement('div');
+    clitic.className = 'clitic';
+    clitic.textContent = currentExample.clitic;
+    clitic.draggable = true;
+    clitic.addEventListener('dragstart', e => {
+      e.dataTransfer.setData('text/plain', currentExample.clitic);
+    });
+    cliticOptions.appendChild(clitic);
+  }
+
+  function handleDrop(e) {
+    e.preventDefault();
+    const dropped = e.dataTransfer.getData('text/plain');
+    e.target.textContent = dropped;
+
+    const index = parseInt(e.target.dataset.index, 10);
+    const feedback = document.getElementById('feedback');
+
+    if (index === currentExample.correctIndex) {
+      feedback.textContent = '✅ Tačno! ' + currentExample.explanation;
+      feedback.style.color = 'green';
+    } else {
+      feedback.textContent = '❌ Pogrešno. ' + currentExample.explanation;
+      feedback.style.color = 'red';
+    }
+
+    // Отключаем повторную вставку
+    document.querySelectorAll('.dropzone').forEach(el => {
+      el.removeEventListener('drop', handleDrop);
+    });
+  }
+
+  loadExample();
+</script>
+
+<button onclick="loadExample()">🔁 Novi primjer</button>
+
+</body>
+</html>
