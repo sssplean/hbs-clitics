@@ -1,80 +1,139 @@
 <!DOCTYPE html>
 <html lang="bs">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Trenažer Enklitika</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Trenažer enklitika</title>
   <style>
     body {
-      font-family: sans-serif;
-      padding: 20px;
-    }
-
-    .flex-container {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #fdf6f0;
+      color: #333;
       display: flex;
-      gap: 10px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
     }
 
-    .word, .dropzone {
-      border: 1px solid #ccc;
+    h2 {
+      color: #555;
+    }
+
+    .sentence-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin: 20px 0;
+      background-color: #fff9f4;
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid #e3d5ca;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+
+    .word-slot {
+      display: flex;
+      align-items: center;
+      justify-content: center;
       padding: 8px 12px;
       min-width: 50px;
-      text-align: center;
+      border-radius: 10px;
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      font-size: 16px;
+      position: relative;
+    }
+
+    .drop-target {
+      width: 10px;
+      height: 36px;
+      margin: 0 4px;
+      background-color: transparent;
+      border: 2px dashed transparent;
+      transition: background-color 0.2s, border-color 0.2s;
+    }
+
+    .drop-target.drag-over {
+      border-color: #ffc9c9;
+      background-color: #ffeaea;
       border-radius: 5px;
-      background-color: #f9f9f9;
     }
 
-    .dropzone {
-      background-color: #e6f7ff;
-    }
-
-    .clitic {
+    .clitic-option {
       display: inline-block;
-      background-color: #d0ebff;
+      background-color: #ffe8d6;
+      color: #444;
+      border: 1px solid #f0d5c9;
       padding: 8px 12px;
-      border-radius: 5px;
-      border: 1px solid #aaa;
+      margin: 8px;
+      border-radius: 10px;
       cursor: grab;
+      transition: transform 0.1s ease;
+    }
+
+    .clitic-option:active {
+      transform: scale(0.95);
+    }
+
+    #cliticOptions {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
     }
 
     #feedback {
-      margin-top: 15px;
+      margin-top: 20px;
       font-weight: bold;
+    }
+
+    button {
+      margin-top: 30px;
+      padding: 10px 20px;
+      font-size: 15px;
+      border: none;
+      border-radius: 8px;
+      background-color: #f0baba;
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    button:hover {
+      background-color: #e89f9f;
     }
   </style>
 </head>
 <body>
 
-<h2>Ubaci enklitiku na pravo mjesto:</h2>
+<h2>Ubaci enklitiku na pravo mjesto</h2>
 
-<div id="sentence" class="flex-container"></div>
+<div id="sentence" class="sentence-container"></div>
 
-<p>Prevuci enklitiku:</p>
+<p>Odaberi i prevuci enklitiku:</p>
 <div id="cliticOptions"></div>
 
 <div id="feedback"></div>
 
+<button onclick="loadExample()">🔁 Novi primjer</button>
+
 <script>
   const examples = [
     {
-      parts: ['Ana', '', 'vidjela', 'Marka', 'jučer.'],
+      parts: ['Ana', 'vidjela', 'Marka', 'jučer.'],
       clitic: 'je',
-      correctIndex: 1,
-      explanation: 'Enklitika "je" dolazi odmah nakon prvog naglašenog elementa — ovdje to je "Ana".'
+      distractors: ['mu', 'li']
     },
     {
-      parts: ['Petar', '', 'kupio', 'novi auto.'],
+      parts: ['Petar', 'kupio', 'novi', 'bicikl.'],
       clitic: 'je',
-      correctIndex: 1,
-      explanation: 'Enklitika "je" dolazi odmah iza "Petar".'
+      distractors: ['ga', 'li']
     },
     {
-      parts: ['', 'Li', 'znaš', 'gdje', 'je', 'on?'],
+      parts: ['Znaš', 'gdje', 'on', 'živi?'],
       clitic: 'li',
-      correctIndex: 0,
-      explanation: 'Upitna enklitika "li" ide odmah iza glagola u inverziji: "Znaš li gdje je on?"'
+      distractors: ['se', 'mu']
     }
   ];
 
@@ -90,56 +149,80 @@
 
     currentExample = examples[Math.floor(Math.random() * examples.length)];
 
-    currentExample.parts.forEach((part, idx) => {
-      const el = document.createElement('div');
-      if (part === '') {
-        el.className = 'dropzone';
-        el.dataset.index = idx;
-        el.addEventListener('dragover', e => e.preventDefault());
-        el.addEventListener('drop', handleDrop);
-      } else {
-        el.className = 'word';
-        el.textContent = part;
-      }
-      sentence.appendChild(el);
+    currentExample.parts.forEach((word, i) => {
+      // Dropzone before each word
+      const drop = document.createElement('div');
+      drop.className = 'drop-target';
+      drop.dataset.index = i;
+      drop.addEventListener('dragover', e => {
+        e.preventDefault();
+        drop.classList.add('drag-over');
+      });
+      drop.addEventListener('dragleave', () => drop.classList.remove('drag-over'));
+      drop.addEventListener('drop', e => {
+        e.preventDefault();
+        drop.classList.remove('drag-over');
+        const data = e.dataTransfer.getData('text/plain');
+        checkAnswer(i, data);
+      });
+      sentence.appendChild(drop);
+
+      const wordEl = document.createElement('div');
+      wordEl.className = 'word-slot';
+      wordEl.textContent = word;
+      sentence.appendChild(wordEl);
     });
 
-    const clitic = document.createElement('div');
-    clitic.className = 'clitic';
-    clitic.textContent = currentExample.clitic;
-    clitic.draggable = true;
-    clitic.addEventListener('dragstart', e => {
-      e.dataTransfer.setData('text/plain', currentExample.clitic);
+    // Add one final dropzone at the end
+    const finalDrop = document.createElement('div');
+    finalDrop.className = 'drop-target';
+    finalDrop.dataset.index = currentExample.parts.length;
+    finalDrop.addEventListener('dragover', e => {
+      e.preventDefault();
+      finalDrop.classList.add('drag-over');
     });
-    cliticOptions.appendChild(clitic);
+    finalDrop.addEventListener('dragleave', () => finalDrop.classList.remove('drag-over'));
+    finalDrop.addEventListener('drop', e => {
+      e.preventDefault();
+      finalDrop.classList.remove('drag-over');
+      const data = e.dataTransfer.getData('text/plain');
+      checkAnswer(currentExample.parts.length, data);
+    });
+    sentence.appendChild(finalDrop);
+
+    // Mix correct clitic with distractors
+    const allOptions = [...currentExample.distractors, currentExample.clitic].sort(() => Math.random() - 0.5);
+    allOptions.forEach(c => {
+      const opt = document.createElement('div');
+      opt.className = 'clitic-option';
+      opt.textContent = c;
+      opt.draggable = true;
+      opt.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', c);
+      });
+      cliticOptions.appendChild(opt);
+    });
   }
 
-  function handleDrop(e) {
-    e.preventDefault();
-    const dropped = e.dataTransfer.getData('text/plain');
-    e.target.textContent = dropped;
+  function checkAnswer(index, clitic) {
+    const correctIndex = currentExample.parts.findIndex((_, i) => {
+      const test = [...currentExample.parts];
+      test.splice(i, 0, clitic);
+      return test.join(' ') === [...currentExample.parts.slice(0, index), clitic, ...currentExample.parts.slice(index)].join(' ');
+    });
 
-    const index = parseInt(e.target.dataset.index, 10);
     const feedback = document.getElementById('feedback');
-
-    if (index === currentExample.correctIndex) {
-      feedback.textContent = '✅ Tačno! ' + currentExample.explanation;
+    if (clitic === currentExample.clitic && index === correctIndex) {
+      feedback.textContent = '✅ Tačno!';
       feedback.style.color = 'green';
     } else {
-      feedback.textContent = '❌ Pogrešno. ' + currentExample.explanation;
+      feedback.textContent = `❌ Nije tačno. Pokušaj ponovo.`;
       feedback.style.color = 'red';
     }
-
-    // Отключаем повторную вставку
-    document.querySelectorAll('.dropzone').forEach(el => {
-      el.removeEventListener('drop', handleDrop);
-    });
   }
 
   loadExample();
 </script>
-
-<button onclick="loadExample()">🔁 Novi primjer</button>
 
 </body>
 </html>
