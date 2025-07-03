@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="bs">
 <head>
   <meta charset="UTF-8" />
@@ -47,7 +47,7 @@
     }
 
     .drop-slot {
-      width: 8px;
+      width: 6px;
       transition: width 0.2s, background-color 0.2s;
     }
 
@@ -112,22 +112,8 @@
 
 <button onclick="loadExample()">🔁 Novi primjer</button>
 
+<script src="enclitics-data.js"></script>
 <script>
-  const examples = [
-    {
-      parts: ['Ana', 'vidjela', 'Marka', 'jučer.'],
-      enclitics: ['je'],
-      correctIndexes: [1],
-      distractors: ['mu', 'li']
-    },
-    {
-      parts: ['Petar', 'dao', 'poklon', 'djetetu', 'jučer.'],
-      enclitics: ['mu', 'je'],
-      correctIndexes: [1, 2],
-      distractors: ['ga', 'se']
-    }
-  ];
-
   let currentExample = {};
   let inserted = [];
 
@@ -140,7 +126,7 @@
     feedback.textContent = '';
     inserted = [];
 
-    currentExample = examples[Math.floor(Math.random() * examples.length)];
+    currentExample = encliticsExamples[Math.floor(Math.random() * encliticsExamples.length)];
 
     for (let i = 0; i <= currentExample.parts.length; i++) {
       const drop = document.createElement('div');
@@ -157,7 +143,7 @@
         e.preventDefault();
         drop.classList.remove('over');
         const enclitic = e.dataTransfer.getData('text/plain');
-        if (inserted.includes(enclitic)) return; // Не вставлять повторно
+        if (inserted.includes(enclitic)) return;
         inserted.push(enclitic);
 
         const word = document.createElement('div');
@@ -197,20 +183,20 @@
     const actualEnclitics = allWords.filter(word => currentExample.enclitics.includes(word));
 
     let correct = true;
-    let encliticPointer = 0;
+    let pointer = 0;
 
     for (let i = 0; i < allWords.length; i++) {
-      if (allWords[i] === currentExample.enclitics[encliticPointer]) {
-        if (i !== currentExample.correctIndexes[encliticPointer] + encliticPointer) {
+      if (currentExample.enclitics.includes(allWords[i])) {
+        if (i !== currentExample.correctIndexes[pointer] + pointer) {
           correct = false;
+          break;
         }
-        encliticPointer++;
-        if (encliticPointer >= currentExample.enclitics.length) break;
+        pointer++;
       }
     }
 
     const feedback = document.getElementById('feedback');
-    if (correct && encliticPointer === currentExample.enclitics.length) {
+    if (correct && pointer === currentExample.enclitics.length) {
       feedback.textContent = '✅ Tačno!';
       feedback.style.color = 'green';
     } else {
