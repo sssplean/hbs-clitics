@@ -69,5 +69,3 @@ const encliticsExamples = [
   { parts: ['Ako', 'mu', 'ne', 'rečeš', 'li', 'on', 'će', 'doći?'], enclitics: ['mu','li','će'], correctIndexes: [1,4,6], distractors: ['je','se'] },
   { parts: ['Nismo', 'se', 'ni', 'pogađali', 'ga', 'juče.'], enclitics: ['smo','se','ga'], correctIndexes: [0,1,4], distractors: ['je','li'] },
 ];
-
-export { encliticsExamples };
