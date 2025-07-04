@@ -18,12 +18,30 @@
     .sentence-container {
       display: flex;
       flex-wrap: wrap;
-      gap: 0.7rem;
       justify-content: center;
       align-items: flex-end;
       margin-bottom: 2rem;
       padding: 0.5rem;
-      min-height: 80px;
+    }
+
+    .drop-slot {
+      width: 2rem;
+      height: 2.8rem;
+      margin: 0 0.4rem;
+      border-radius: 5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .drop-slot.over {
+      border: 2px dashed #74b9ff;
+      background-color: #dfefff;
+    }
+
+    .drop-slot.filled {
+      background-color: #a29bfe;
     }
 
     .word-block {
@@ -34,6 +52,7 @@
       text-align: center;
       box-shadow: 1px 1px 4px rgba(0,0,0,0.1);
       user-select: none;
+      margin: 0 0.4rem;
     }
 
     .inserted-enclitic {
@@ -42,17 +61,11 @@
       cursor: grab;
     }
 
-    .drop-slot {
-      width: 1rem;
-      height: 2.8rem;
-      transition: all 0.2s ease;
-    }
-
-    .drop-slot.over {
-      width: 2.5rem;
-      border: 2px dashed #74b9ff;
-      background-color: #dfefff;
-      border-radius: 5px;
+    .enclitic-options {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
     }
 
     .enclitic-option {
@@ -64,13 +77,6 @@
       box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
       user-select: none;
       font-weight: 500;
-    }
-
-    .enclitic-options {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      margin-bottom: 1.5rem;
     }
 
     button {
@@ -121,22 +127,28 @@
           const drop = document.createElement('div');
           drop.className = 'drop-slot';
           drop.dataset.index = i;
+
           drop.addEventListener('dragover', e => {
             e.preventDefault();
             drop.classList.add('over');
           });
+
           drop.addEventListener('dragleave', () => {
             drop.classList.remove('over');
           });
+
           drop.addEventListener('drop', e => {
             e.preventDefault();
             drop.classList.remove('over');
             const enclitic = e.dataTransfer.getData('text/plain');
             if (!currentExample.enclitics.includes(enclitic) && !currentExample.distractors.includes(enclitic)) return;
 
-            // Удаляем прежний, если он был вставлен
-            const old = Array.from(sentence.querySelectorAll('.inserted-enclitic')).find(e => e.textContent === enclitic);
-            if (old) old.remove();
+            // Удаляем предыдущий такой же
+            const old = Array.from(document.querySelectorAll('.inserted-enclitic')).find(e => e.textContent === enclitic);
+            if (old && old.parentElement.classList.contains('drop-slot')) {
+              old.parentElement.innerHTML = '';
+              old.parentElement.classList.remove('filled');
+            }
 
             const word = document.createElement('div');
             word.className = 'word-block inserted-enclitic';
@@ -147,11 +159,11 @@
               ev.dataTransfer.setData('text/plain', enclitic);
             });
 
-            drop.insertAdjacentElement('afterend', word);
+            drop.innerHTML = '';
+            drop.appendChild(word);
+            drop.classList.add('filled');
 
-            inserted = Array.from(document.querySelectorAll('.inserted-enclitic')).map(e => e.textContent);
-
-            // Убираем из панели
+            // Удаляем из панели выбора
             const option = Array.from(encliticOptions.children).find(el => el.textContent === enclitic);
             if (option) option.remove();
           });
