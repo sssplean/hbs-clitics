@@ -34,6 +34,12 @@
       box-shadow: 1px 1px 4px rgba(0,0,0,0.1);
     }
 
+    .inserted-enclitic {
+      background-color: #a29bfe;
+      color: white;
+      cursor: pointer;
+    }
+
     .drop-slot {
       width: 1rem;
       height: 2.5rem;
@@ -74,6 +80,7 @@
       cursor: pointer;
       font-size: 1rem;
       box-shadow: 1px 1px 4px rgba(0,0,0,0.2);
+      margin: 0.5rem;
     }
 
     #feedback {
@@ -85,7 +92,10 @@
 <body>
   <div class="sentence-container" id="sentence"></div>
   <div class="enclitic-options" id="encliticOptions"></div>
-  <button onclick="loadExample()">🔁 Novi primjer</button>
+  <div>
+    <button onclick="loadExample()">🔁 Novi primjer</button>
+    <button onclick="checkAnswer()">✅ Gotovo</button>
+  </div>
   <div id="feedback"></div>
 
   <script src="enclitics-data.js"></script>
@@ -124,13 +134,22 @@
             inserted.push(enclitic);
 
             const word = document.createElement('div');
-            word.className = 'word-block';
+            word.className = 'word-block inserted-enclitic';
             word.textContent = enclitic;
-            drop.insertAdjacentElement('afterend', word);
+            word.addEventListener('click', () => {
+              word.remove();
+              inserted = inserted.filter(item => item !== enclitic);
+              const opt = document.createElement('div');
+              opt.className = 'enclitic-option';
+              opt.textContent = enclitic;
+              opt.draggable = true;
+              opt.addEventListener('dragstart', e => {
+                e.dataTransfer.setData('text/plain', enclitic);
+              });
+              encliticOptions.appendChild(opt);
+            });
 
-            if (inserted.length === currentExample.enclitics.length) {
-              checkAnswer();
-            }
+            drop.insertAdjacentElement('afterend', word);
           });
           sentence.appendChild(drop);
 
@@ -173,7 +192,10 @@
         }
 
         const feedback = document.getElementById('feedback');
-        if (correct && pointer === currentExample.enclitics.length) {
+        if (actualEnclitics.length !== currentExample.enclitics.length) {
+          feedback.textContent = '❗ Moraš ubaciti sve enklitike.';
+          feedback.style.color = 'orange';
+        } else if (correct && pointer === currentExample.enclitics.length) {
           feedback.textContent = '✅ Tačno!';
           feedback.style.color = 'green';
         } else {
@@ -181,6 +203,9 @@
           feedback.style.color = 'red';
         }
       }
+
+      window.loadExample = loadExample;
+      window.checkAnswer = checkAnswer;
 
       loadExample();
     };
