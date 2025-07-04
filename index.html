@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="="en">
 <head>
   <meta charset="UTF-8">
   <title>Enklitika Trener</title>
@@ -121,123 +121,123 @@
 
   <script src="enclitics-data.js"></script>
   <script>
-    window.onload = function () {
-      let currentExample = {};
-      let inserted = [];
+    let currentExample = {};
+    let inserted = [];
 
-      function loadExample() {
-        const sentence = document.getElementById('sentence');
-        const encliticOptions = document.getElementById('encliticOptions');
-        const feedback = document.getElementById('feedback');
-        sentence.innerHTML = '';
-        encliticOptions.innerHTML = '';
-        feedback.textContent = '';
-        inserted = [];
+    function loadExample() {
+      const sentence = document.getElementById('sentence');
+      const encliticOptions = document.getElementById('encliticOptions');
+      const feedback = document.getElementById('feedback');
+      sentence.innerHTML = '';
+      encliticOptions.innerHTML = '';
+      feedback.textContent = '';
+      inserted = [];
 
-        currentExample = encliticsExamples[Math.floor(Math.random() * encliticsExamples.length)];
+      currentExample = encliticsExamples[Math.floor(Math.random() * encliticsExamples.length)];
 
-        for (let i = 0; i <= currentExample.parts.length; i++) {
-          const drop = document.createElement('div');
-          drop.className = 'drop-slot';
-          drop.dataset.index = i;
+      for (let i = 0; i <= currentExample.parts.length; i++) {
+        const drop = document.createElement('div');
+        drop.className = 'drop-slot';
+        drop.dataset.index = i;
 
-          drop.addEventListener('dragover', e => {
-            e.preventDefault();
-            drop.classList.add('over');
-          });
-
-          drop.addEventListener('dragleave', () => {
-            drop.classList.remove('over');
-          });
-
-          drop.addEventListener('drop', e => {
-            e.preventDefault();
-            drop.classList.remove('over');
-            const enclitic = e.dataTransfer.getData('text/plain');
-            if (!currentExample.enclitics.includes(enclitic) && !currentExample.distractors.includes(enclitic)) return;
-
-            const old = Array.from(document.querySelectorAll('.inserted-enclitic')).find(e => e.textContent === enclitic);
-            if (old && old.parentElement.classList.contains('drop-slot')) {
-              old.parentElement.innerHTML = '';
-              old.parentElement.classList.remove('filled');
-            }
-
-            const word = document.createElement('div');
-            word.className = 'word-block inserted-enclitic';
-            word.textContent = enclitic;
-            word.setAttribute('draggable', 'true');
-
-            word.addEventListener('dragstart', ev => {
-              ev.dataTransfer.setData('text/plain', enclitic);
-            });
-
-            drop.innerHTML = '';
-            drop.appendChild(word);
-            drop.classList.add('filled');
-
-            const option = Array.from(encliticOptions.children).find(el => el.textContent === enclitic);
-            if (option) option.remove();
-          });
-
-          sentence.appendChild(drop);
-
-          if (i < currentExample.parts.length) {
-            const wordEl = document.createElement('div');
-            wordEl.className = 'word-block';
-            wordEl.textContent = currentExample.parts[i];
-            sentence.appendChild(wordEl);
-          }
-        }
-
-        const allOptions = [...currentExample.enclitics, ...currentExample.distractors].sort(() => Math.random() - 0.5);
-        allOptions.forEach(text => {
-          const opt = document.createElement('div');
-          opt.className = 'enclitic-option';
-          opt.textContent = text;
-          opt.draggable = true;
-          opt.addEventListener('dragstart', e => {
-            e.dataTransfer.setData('text/plain', text);
-          });
-          encliticOptions.appendChild(opt);
-        });
-      }
-
-      function checkAnswer() {
-        const allWords = Array.from(document.querySelectorAll('.sentence-container .word-block'));
-        const feedback = document.getElementById('feedback');
-        let pointer = 0;
-        let correct = true;
-
-        allWords.forEach((el, index) => {
-          if (currentExample.enclitics.includes(el.textContent)) {
-            const expectedIndex = currentExample.correctIndexes[pointer] + pointer;
-            if (index === expectedIndex) {
-              el.classList.add('correct');
-            } else {
-              el.classList.add('incorrect');
-              correct = false;
-            }
-            pointer++;
-          }
+        drop.addEventListener('dragover', e => {
+          e.preventDefault();
+          drop.classList.add('over');
         });
 
-        if (pointer < currentExample.enclitics.length) {
-          feedback.textContent = '❗ Moraš ubaciti sve enklitike.';
-          feedback.style.color = 'orange';
-        } else if (correct) {
-          feedback.textContent = '✅ Tačno!';
-          feedback.style.color = 'green';
-        } else {
-          feedback.textContent = '❌ Nije tačno. Pokušaj ponovo.';
-          feedback.style.color = 'red';
+        drop.addEventListener('dragleave', () => {
+          drop.classList.remove('over');
+        });
+
+        drop.addEventListener('drop', e => {
+          e.preventDefault();
+          drop.classList.remove('over');
+          const enclitic = e.dataTransfer.getData('text/plain');
+          if (!currentExample.enclitics.includes(enclitic) && !currentExample.distractors.includes(enclitic)) return;
+
+          const old = Array.from(document.querySelectorAll('.inserted-enclitic')).find(e => e.textContent === enclitic);
+          if (old && old.parentElement.classList.contains('drop-slot')) {
+            old.parentElement.innerHTML = '';
+            old.parentElement.classList.remove('filled');
+          }
+
+          const word = document.createElement('div');
+          word.className = 'word-block inserted-enclitic';
+          word.textContent = enclitic;
+          word.setAttribute('draggable', 'true');
+
+          word.addEventListener('dragstart', ev => {
+            ev.dataTransfer.setData('text/plain', enclitic);
+          });
+
+          drop.innerHTML = '';
+          drop.appendChild(word);
+          drop.classList.add('filled');
+
+          const option = Array.from(encliticOptions.children).find(el => el.textContent === enclitic);
+          if (option) option.remove();
+        });
+
+        sentence.appendChild(drop);
+
+        if (i < currentExample.parts.length) {
+          const wordEl = document.createElement('div');
+          wordEl.className = 'word-block';
+          wordEl.textContent = currentExample.parts[i];
+          sentence.appendChild(wordEl);
         }
       }
 
-      window.loadExample = loadExample;
-      window.checkAnswer = checkAnswer;
+      const allOptions = [...currentExample.enclitics, ...currentExample.distractors].sort(() => Math.random() - 0.5);
+      allOptions.forEach(text => {
+        const opt = document.createElement('div');
+        opt.className = 'enclitic-option';
+        opt.textContent = text;
+        opt.draggable = true;
+        opt.addEventListener('dragstart', e => {
+          e.dataTransfer.setData('text/plain', text);
+        });
+        encliticOptions.appendChild(opt);
+      });
+    }
 
+    function checkAnswer() {
+      const allWords = Array.from(document.querySelectorAll('.sentence-container .word-block'));
+      const feedback = document.getElementById('feedback');
+      let pointer = 0;
+      let correct = true;
+
+      allWords.forEach((el, index) => {
+        if (currentExample.enclitics.includes(el.textContent)) {
+          const expectedIndex = currentExample.correctIndexes[pointer] + pointer;
+          if (index === expectedIndex) {
+            el.classList.add('correct');
+          } else {
+            el.classList.add('incorrect');
+            correct = false;
+          }
+          pointer++;
+        }
+      });
+
+      if (pointer < currentExample.enclitics.length) {
+        feedback.textContent = '❗ Moraš ubaciti sve enklitike.';
+        feedback.style.color = 'orange';
+      } else if (correct) {
+        feedback.textContent = '✅ Tačno!';
+        feedback.style.color = 'green';
+      } else {
+        feedback.textContent = '❌ Nije tačno. Pokušaj ponovo.';
+        feedback.style.color = 'red';
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
       loadExample();
-    };
+    });
+
+    window.loadExample = loadExample;
+    window.checkAnswer = checkAnswer;
   </script>
 </body>
 </html>
