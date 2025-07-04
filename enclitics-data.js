@@ -1,71 +1,97 @@
 const encliticsExamples = [
-  // 1–30: простые конструкции
-  { parts: ['Ana', 'vidjela', 'Marka', 'jučer.'], enclitics: ['je'], correctIndexes: [1], distractors: ['mu','li'] },
-  { parts: ['On', 'je', 'došao', 'rano', 'jutros.'], enclitics: ['je'], correctIndexes: [1], distractors: ['ga','mu'] },
-  { parts: ['Znaš', 'gdje', 'on', 'radi?'], enclitics: ['li'], correctIndexes: [0], distractors: ['je','mu'] },
-  { parts: ['Nikada', 'nisam', 'video', 'ga', 'jučer.'], enclitics: ['ga'], correctIndexes: [3], distractors: ['je','li'] },
-  { parts: ['Kupio', 'sam', 'novi', 'automobil.'], enclitics: ['sam'], correctIndexes: [1], distractors: ['je','li'] },
-  { parts: ['Danas', 'ću', 'pisati', 'pismo.'], enclitics: ['ću'], correctIndexes: [1], distractors: ['je','li'] },
-  { parts: ['Uvek', 'se', 'setim', 'tebe.'], enclitics: ['se'], correctIndexes: [1], distractors: ['je','li'] },
-  { parts: ['On', 'je', 'konačno', 'stigao.'], enclitics: ['je'], correctIndexes: [1], distractors: ['mu','ga'] },
-  { parts: ['Pevaćeš', 'li', 'sutra?'], enclitics: ['li'], correctIndexes: [1], distractors: ['je','ga'] },
-  { parts: ['Ne', 'ću', 'viđati', 'ga', 'više.'], enclitics: ['ću'], correctIndexes: [1], distractors: ['je','li'] },
-  { parts: ['Milena', 'voli', 'čitanje.'], enclitics: [], correctIndexes: [], distractors: [] }, // контрольный без енклитик
-  { parts: ['Jesam', 'li', 'dobio', 'pismo?'], enclitics: ['li'], correctIndexes: [1], distractors: ['je','mu'] },
-  { parts: ['Moram', 'li', 'da', 'idem', 'sada?'], enclitics: ['li'], correctIndexes: [1], distractors: ['je','ga'] },
-  { parts: ['On', 'je', 'mogao', 'da', 'dođe,', 'zar', 'ne?'], enclitics: ['je'], correctIndexes: [1], distractors: ['li','mu'] },
-  { parts: ['Nikad', 'neću', 'ga', 'zaboraviti.'], enclitics: ['ću'], correctIndexes: [1], distractors: ['je','li'] },
-  { parts: ['Skupljam', 'li', 'marke?'], enclitics: ['li'], correctIndexes: [1], distractors: ['je','mu'] },
-  { parts: ['Da', 'li', 'voliš', 'čokoladu?'], enclitics: ['li'], correctIndexes: [1], distractors: ['je','se'] },
-  { parts: ['Rekao', 'je', 'da', 'će', 'doći.'], enclitics: ['je'], correctIndexes: [1], distractors: ['mu','ga'] },
-  { parts: ['Morala', 'sam', 'da', 'se', 'probudim', 'ranije.'], enclitics: ['sam','se'], correctIndexes: [1,3], distractors: ['je','mu'] },
-  { parts: ['On', 'se', 'plaši', 'mraka.'], enclitics: ['se'], correctIndexes: [1], distractors: ['je','li'] },
-  { parts: ['Je', 'li', 'stigao', 'već?'], enclitics: ['li'], correctIndexes: [1], distractors: ['je','mu'] },
-  { parts: ['Ne', 'ću', 'zaboraviti', 'tebe.'], enclitics: ['ću'], correctIndexes: [1], distractors: ['je','li'] },
-  { parts: ['Danas', 'se', 'igramo', 'napolju.'], enclitics: ['se'], correctIndexes: [1], distractors: ['je','li'] },
-  { parts: ['Jesi', 'li', 'srećan?'], enclitics: ['li'], correctIndexes: [1], distractors: ['je','ga'] },
-  { parts: ['On', 'je', 'stvarno', 'pametan.'], enclitics: ['je'], correctIndexes: [1], distractors: ['mu','ga'] },
-  { parts: ['Idemo', 'li', 'sutra', 'na', 'izlet?'], enclitics: ['li'], correctIndexes: [1], distractors: ['je','se'] },
-  { parts: ['Ne', 'ću', 'vraćati', 'ga', 'sutra.'], enclitics: ['ću'], correctIndexes: [1], distractors: ['je','li'] },
-  { parts: ['Volim', 'li', 'kafu?'], enclitics: ['li'], correctIndexes: [1], distractors: ['je','se'] },
-  { parts: ['Ne', 'ćeš', 'ga', 'naći.', 'Veruj.',], enclitics: ['ćeš'], correctIndexes: [1], distractors: ['je','li'] },
-  { parts: ['Razmišljaš', 'li', 'o', 'putovanju?'], enclitics: ['li'], correctIndexes: [1], distractors: ['je','se'] },
-  { parts: ['On', 'je', 'već', 'online.'], enclitics: ['je'], correctIndexes: [1], distractors: ['mu','ga'] },
-
-  // 31–70: с двумя enk
-  { parts: ['Petar', 'dao', 'poklon', 'djetetu', 'jučer.'], enclitics: ['mu','je'], correctIndexes: [1,2], distractors: ['ga','se'] },
-  { parts: ['Nisam', 'video', 'ga', 'jučer.'], enclitics: ['sam','ga'], correctIndexes: [0,2], distractors: ['je','li'] },
-  { parts: ['Rekao', 'mi', 'je', 'da', 'su', 'ga', 'vidjeli.'], enclitics: ['mi','je'], correctIndexes: [1,2], distractors: ['se','li'] },
-  { parts: ['Pitamo', 'se', 'li', 'to', 'može', 'da', 'uradimo?'], enclitics: ['se','li'], correctIndexes: [1,2], distractors: ['je','mu'] },
-  { parts: ['Nisi', 'mi', 'dao', 'knjigu.'], enclitics: ['si','mi'], correctIndexes: [0,1], distractors: ['je','ga'] },
-  { parts: ['Možeš', 'li', 'mi', 'to', 'objasniti?'], enclitics: ['li','mi'], correctIndexes: [1,2], distractors: ['je','se'] },
-  { parts: ['Pitao', 'se', 'ga', 'da', 'što', 'radi.'], enclitics: ['se','ga'], correctIndexes: [1,2], distractors: ['je','li'] },
-  { parts: ['Neću', 'ga', 'viđati', 'više.'], enclitics: ['ću','ga'], correctIndexes: [0,1], distractors: ['je','se'] },
-  { parts: ['Htio', 'sam', 'da', 'se', 'vidimo', 'sutra.'], enclitics: ['sam','se'], correctIndexes: [0,1], distractors: ['je','li'] },
-  { parts: ['Znao', 'sam', 'da', 'su', 'ga', 'vidjeli.'], enclitics: ['sam','ga'], correctIndexes: [0,4], distractors: ['je','li'] },
-  { parts: ['Već', 'sam', 'ga', 'čitао.'], enclitics: ['sam','ga'], correctIndexes: [0,2], distractors: ['je','li'] },
-  { parts: ['Htela', 'si', 'li', 'da', 'mi', 'pomogneš?'], enclitics: ['si','li'], correctIndexes: [0,2], distractors: ['je','se'] },
-  { parts: ['Nisam', 'mogao', 'da', 'mu', 'kažem.'], enclitics: ['sam','mu'], correctIndexes: [0,3], distractors: ['je','li'] },
-  { parts: ['Rekla', 'mi', 'je', 'da', 'si', 'tu.'], enclitics: ['mi','je'], correctIndexes: [1,2], distractors: ['se','li'] },
-  { parts: ['Ti', 'si', 'ga', 'video.'], enclitics: ['si','ga'], correctIndexes: [0,2], distractors: ['je','li'] },
-  { parts: ['Mislio', 'sam', 'da', 'ću', 'ga', 'videti.'], enclitics: ['sam','ću'], correctIndexes: [0,1], distractors: ['je','li'] },
-  { parts: ['Hoćeš', 'li', 'mi', 'to', 'reći?'], enclitics: ['li','mi'], correctIndexes: [1,2], distractors: ['je','se'] },
-  { parts: ['Videla', 'si', 'li', 'je', 'nju?'], enclitics: ['si','li'], correctIndexes: [0,2], distractors: ['je','ga'] },
-  { parts: ['Jesam', 'li', 'ti', 'pomogao?'], enclitics: ['li','ti'], correctIndexes: [1,2], distractors: ['je','se'] },
-  { parts: ['Nećeš', 'li', 'mu', 'reći?'], enclitics: ['li','mu'], correctIndexes: [1,2], distractors: ['je','ga'] },
-  { parts: ['Pitala', 'se', 'li', 'šta', 'je', 'uradila.'], enclitics: ['se','li'], correctIndexes: [1,2], distractors: ['je','ga'] },
-  { parts: ['Rekao', 'sam', 'ti', 'da', 'stigneš.',], enclitics: ['sam','ti'], correctIndexes: [0,2], distractors: ['je','li'] },
-
-  // 71–105: 3 enklitika
-  { parts: ['On', 'rekao', 'da', 'su', 'vidjeli', 'Marka', 'jučer.'], enclitics: ['mu','ga','je'], correctIndexes: [1,4,2], distractors: ['se','li'] },
-  { parts: ['Mislio', 'sam', 'da', 'ću', 'to', 'urадити', 'sutra.'], enclitics: ['sam','ću','li'], correctIndexes: [0,1,6], distractors: ['je','ga'] },
-  { parts: ['Nisam', 'mogao', 'da', 'vidim', 'ga', 'jučer.'], enclitics: ['sam','ga','li'], correctIndexes: [0,4,5], distractors: ['je','se'] },
-  { parts: ['Rekao', 'mi', 'je', 'da', 'si', 'ga', 'video.'], enclitics: ['mi','je','ga'], correctIndexes: [1,2,5], distractors: ['se','li'] },
-  { parts: ['Ako', 'mi', 'ga', 'rekneš', 'sutra.'], enclitics: ['mi','ga','li'], correctIndexes: [1,2,5], distractors: ['je','se'] },
-  { parts: ['Nadam', 'se', 'da', 'ćeš', 'mi', 'doći.'], enclitics: ['se','ćeš','mi'], correctIndexes: [1,3,4], distractors: ['je','ga'] },
-  { parts: ['Rekla', 'mi', 'je', 'da', 'su', 'mi', 'doneli', 'knjigu.'], enclitics: ['mi','je','su'], correctIndexes: [1,2,5], distractors: ['se','li'] },
-  { parts: ['Pitamo', 'se', 'da', 'li', 'će', 'nam', 'pomоћи.'], enclitics: ['se','li','nam'], correctIndexes: [1,3,5], distractors: ['je','ga'] },
-  { parts: ['Znao', 'sam', 'da', 'će', 'ga', 'pitati.'], enclitics: ['sam','će','ga'], correctIndexes: [0,3,5], distractors: ['je','li'] },
-  { parts: ['Ako', 'mu', 'ne', 'rečeš', 'li', 'on', 'će', 'doći?'], enclitics: ['mu','li','će'], correctIndexes: [1,4,6], distractors: ['je','se'] },
-  { parts: ['Nismo', 'se', 'ni', 'pogađali', 'ga', 'juče.'], enclitics: ['smo','se','ga'], correctIndexes: [0,1,4], distractors: ['je','li'] },
+  {
+    "parts": [
+      "Ana",
+      "vidjela",
+      "Marka",
+      "jučer."
+    ],
+    "enclitics": [
+      "je"
+    ],
+    "correctIndexes": [
+      1
+    ],
+    "distractors": [
+      "mu",
+      "li"
+    ]
+  },
+  {
+    "parts": [
+      "On",
+      "došao",
+      "rano",
+      "jutros."
+    ],
+    "enclitics": [
+      "je"
+    ],
+    "correctIndexes": [
+      1
+    ],
+    "distractors": [
+      "mu",
+      "ga"
+    ]
+  },
+  {
+    "parts": [
+      "Nikada",
+      "nisam",
+      "video."
+    ],
+    "enclitics": [
+      "ga"
+    ],
+    "correctIndexes": [
+      2
+    ],
+    "distractors": [
+      "mu",
+      "li"
+    ]
+  },
+  {
+    "parts": [
+      "Petar",
+      "dao",
+      "poklon",
+      "djetetu",
+      "jučer."
+    ],
+    "enclitics": [
+      "mu",
+      "je"
+    ],
+    "correctIndexes": [
+      1,
+      2
+    ],
+    "distractors": [
+      "ga",
+      "se"
+    ]
+  },
+  {
+    "parts": [
+      "Rekao",
+      "da",
+      "vidjeli",
+      "Marka",
+      "jučer."
+    ],
+    "enclitics": [
+      "su",
+      "ga"
+    ],
+    "correctIndexes": [
+      1,
+      2
+    ],
+    "distractors": [
+      "li",
+      "je"
+    ]
+  }
 ];
