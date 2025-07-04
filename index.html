@@ -221,4 +221,23 @@
           }
         });
 
-        if (pointer < currentExample.enclit
+        if (pointer < currentExample.enclitics.length) {
+          feedback.textContent = '❗ Moraš ubaciti sve enklitike.';
+          feedback.style.color = 'orange';
+        } else if (correct) {
+          feedback.textContent = '✅ Tačno!';
+          feedback.style.color = 'green';
+        } else {
+          feedback.textContent = '❌ Nije tačno. Pokušaj ponovo.';
+          feedback.style.color = 'red';
+        }
+      }
+
+      window.loadExample = loadExample;
+      window.checkAnswer = checkAnswer;
+
+      loadExample();
+    };
+  </script>
+</body>
+</html>
