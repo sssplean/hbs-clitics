@@ -3,120 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Enklitika Trener</title>
-  <style>
-    body {
-      font-family: 'Segoe UI', sans-serif;
-      font-size: 18px;
-      background-color: #ffe5d9;
-      margin: 0;
-      padding: 2rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    .sentence-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 12px;
-      margin-bottom: 2rem;
-      padding: 0.5rem;
-    }
-
-    .drop-slot {
-      width: 60px;
-      height: 48px;
-      border-radius: 12px;
-      background-color: #f0f0f0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
-      box-sizing: border-box;
-      flex-shrink: 0;
-    }
-
-    .drop-slot.over {
-      border: 2px dashed #74b9ff;
-      background-color: #dfefff;
-    }
-
-    .drop-slot.filled {
-      background-color: #e0e0e0;
-    }
-
-    .word-block {
-      background-color: #d0f0c0;
-      border-radius: 12px;
-      padding: 0.6rem 1.2rem;
-      min-width: 60px;
-      height: 48px;
-      text-align: center;
-      box-shadow: 1px 1px 4px rgba(0,0,0,0.1);
-      user-select: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-sizing: border-box;
-    }
-
-    .inserted-enclitic {
-      background-color: #cccccc;
-      color: #333;
-      cursor: grab;
-      border-radius: 12px;
-      padding: 0.6rem 1.2rem;
-      min-width: 40px;
-      height: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .correct {
-      background-color: #a8e6a3 !important;
-    }
-
-    .incorrect {
-      background-color: #f8b3b3 !important;
-    }
-
-    .enclitic-options {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 12px;
-      margin-bottom: 1.5rem;
-    }
-
-    .enclitic-option {
-      background-color: #cccccc;
-      border-radius: 10px;
-      padding: 0.6rem 1.2rem;
-      cursor: grab;
-      box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
-      user-select: none;
-      font-weight: 500;
-    }
-
-    button {
-      padding: 0.6rem 1.5rem;
-      background-color: #74b9ff;
-      color: white;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 1rem;
-      box-shadow: 1px 1px 4px rgba(0,0,0,0.2);
-      margin: 0.5rem;
-    }
-
-    #feedback {
-      font-weight: bold;
-      margin-top: 1rem;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div class="sentence-container" id="sentence"></div>
@@ -130,123 +17,119 @@
   <script src="enclitics-data.js"></script>
   <script>
     let currentExample = {};
-    let inserted = [];
+    let insertedSlots = {};
 
     function loadExample() {
+      insertedSlots = {};
+      document.getElementById('feedback').textContent = '';
       const sentence = document.getElementById('sentence');
       const encliticOptions = document.getElementById('encliticOptions');
-      const feedback = document.getElementById('feedback');
       sentence.innerHTML = '';
       encliticOptions.innerHTML = '';
-      feedback.textContent = '';
-      inserted = [];
 
       currentExample = encliticsExamples[Math.floor(Math.random() * encliticsExamples.length)];
 
-      for (let i = 0; i <= currentExample.parts.length; i++) {
+      currentExample.parts.forEach((word, i) => {
+        const wb = document.createElement('div');
+        wb.className = 'word-block';
+        wb.textContent = word;
+        sentence.appendChild(wb);
+
         const drop = document.createElement('div');
         drop.className = 'drop-slot';
-        drop.dataset.index = i;
-
-        drop.addEventListener('dragover', e => {
-          e.preventDefault();
+        drop.dataset.index = i+1;
+        drop.addEventListener('dragover', ev => {
+          ev.preventDefault();
           drop.classList.add('over');
         });
-
-        drop.addEventListener('dragleave', () => {
+        drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+        drop.addEventListener('drop', ev => {
+          ev.preventDefault();
           drop.classList.remove('over');
-        });
-
-        drop.addEventListener('drop', e => {
-          e.preventDefault();
-          drop.classList.remove('over');
-          const enclitic = e.dataTransfer.getData('text/plain');
-
-          if (!currentExample.enclitics.includes(enclitic) && !currentExample.distractors.includes(enclitic)) return;
-
-          const old = Array.from(document.querySelectorAll('.inserted-enclitic')).find(e => e.textContent === enclitic);
-          if (old && old.parentElement.classList.contains('drop-slot')) {
-            old.parentElement.innerHTML = '';
-            old.parentElement.classList.remove('filled');
+          const encl = ev.dataTransfer.getData('text/plain');
+          if (!(currentExample.enclitics.includes(encl) || currentExample.distractors.includes(encl))) return;
+          // remove from previous slot
+          for (const idx in insertedSlots) {
+            if (insertedSlots[idx] === encl) delete insertedSlots[idx];
+            document.querySelector(`.drop-slot[data-index="${idx}"]`).innerHTML = '';
           }
-
-          const word = document.createElement('div');
-          word.className = 'inserted-enclitic';
-          word.textContent = enclitic;
-          word.setAttribute('draggable', 'true');
-
-          word.addEventListener('dragstart', ev => {
-            ev.dataTransfer.setData('text/plain', enclitic);
+          // place in new
+          const div = document.createElement('div');
+          div.className = 'inserted-enclitic';
+          div.textContent = encl;
+          div.draggable = true;
+          div.addEventListener('dragstart', ev => {
+            ev.dataTransfer.setData('text/plain', encl);
           });
-
           drop.innerHTML = '';
-          drop.appendChild(word);
-          drop.classList.add('filled');
-
-          const option = Array.from(encliticOptions.children).find(el => el.textContent === enclitic);
-          if (option) option.remove();
+          drop.appendChild(div);
+          insertedSlots[drop.dataset.index] = encl;
         });
-
         sentence.appendChild(drop);
-
-        if (i < currentExample.parts.length) {
-          const wordEl = document.createElement('div');
-          wordEl.className = 'word-block';
-          wordEl.textContent = currentExample.parts[i];
-          sentence.appendChild(wordEl);
+      });
+      // after last word, extra slot:
+      const dropLast = document.createElement('div');
+      dropLast.className = 'drop-slot';
+      dropLast.dataset.index = currentExample.parts.length+1;
+      dropLast.addEventListener('dragover', ev => {ev.preventDefault(); dropLast.classList.add('over');});
+      dropLast.addEventListener('dragleave', () => dropLast.classList.remove('over'));
+      dropLast.addEventListener('drop', ev => {
+        ev.preventDefault();
+        dropLast.classList.remove('over');
+        const encl = ev.dataTransfer.getData('text/plain');
+        if (!(currentExample.enclitics.includes(encl) || currentExample.distractors.includes(encl))) return;
+        for (const idx in insertedSlots) {
+          if (insertedSlots[idx] === encl) delete insertedSlots[idx];
+          document.querySelector(`.drop-slot[data-index="${idx}"]`).innerHTML = '';
         }
-      }
+        const div = document.createElement('div');
+        div.className = 'inserted-enclitic';
+        div.textContent = encl;
+        div.draggable = true;
+        div.addEventListener('dragstart', ev => {
+          ev.dataTransfer.setData('text/plain', encl);
+        });
+        dropLast.innerHTML = '';
+        dropLast.appendChild(div);
+        insertedSlots[dropLast.dataset.index] = encl;
+      });
+      sentence.appendChild(dropLast);
 
-      const allOptions = [...currentExample.enclitics, ...currentExample.distractors].sort(() => Math.random() - 0.5);
-      allOptions.forEach(text => {
+      const opts = [...currentExample.enclitics, ...currentExample.distractors].sort(() => Math.random()-0.5);
+      opts.forEach(encl => {
         const opt = document.createElement('div');
         opt.className = 'enclitic-option';
-        opt.textContent = text;
+        opt.textContent = encl;
         opt.draggable = true;
-        opt.addEventListener('dragstart', e => {
-          e.dataTransfer.setData('text/plain', text);
+        opt.addEventListener('dragstart', ev => {
+          ev.dataTransfer.setData('text/plain', encl);
         });
         encliticOptions.appendChild(opt);
       });
     }
 
     function checkAnswer() {
-      const allWords = Array.from(document.querySelectorAll('.sentence-container .word-block, .inserted-enclitic'));
       const feedback = document.getElementById('feedback');
-      let pointer = 0;
+      const placed = Object.entries(insertedSlots)
+        .filter(([,e]) => currentExample.enclitics.includes(e))
+        .map(([i,e]) => Number(i));
       let correct = true;
-
-      allWords.forEach((el, index) => {
-        if (currentExample.enclitics.includes(el.textContent)) {
-          const expectedIndex = currentExample.correctIndexes[pointer] + pointer;
-          if (index === expectedIndex) {
-            el.classList.add('correct');
-          } else {
-            el.classList.add('incorrect');
-            correct = false;
-          }
-          pointer++;
-        }
+      currentExample.enclitics.forEach((e, idx) => {
+        const expect = currentExample.correctIndexes[idx];
+        if (!placed.includes(expect)) correct = false;
       });
-
-      if (pointer < currentExample.enclitics.length) {
-        feedback.textContent = '❗ Moraš ubaciti sve enklitike.';
+      if (Object.keys(insertedSlots).length < currentExample.enclitics.length) {
+        feedback.textContent = '❗ Ubaci sve enklitike.';
         feedback.style.color = 'orange';
-      } else if (correct) {
-        feedback.textContent = '✅ Tačno!';
-        feedback.style.color = 'green';
-      } else {
-        feedback.textContent = '❌ Nije tačno. Pokušaj ponovo.';
-        feedback.style.color = 'red';
+        return;
       }
+      feedback.textContent = correct ? '✅ Tačno!' : '❌ Nije tačno.';
+      feedback.style.color = correct ? 'green' : 'red';
     }
-
-    document.addEventListener('DOMContentLoaded', () => {
-      loadExample();
-    });
 
     window.loadExample = loadExample;
     window.checkAnswer = checkAnswer;
+    document.addEventListener('DOMContentLoaded', loadExample);
   </script>
 </body>
 </html>
