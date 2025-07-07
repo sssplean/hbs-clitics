@@ -1,4 +1,4 @@
-export const encliticsExamples = [
+const encliticsExamples = [
   {
     "parts": ["Petar", "dao", "poklon", "djetetu", "jučer"],
     "enclitics": ["mu", "je"],
