@@ -1,14 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
+  <meta charset="UTF-8" />
   <title>Enklitika Trener</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div class="sentence-container" id="sentence"></div>
   <div class="enclitic-options" id="encliticOptions"></div>
-  <div>
+  <div class="buttons">
     <button onclick="loadExample()">🔁 Novi primjer</button>
     <button onclick="checkAnswer()">✅ Gotovo</button>
   </div>
@@ -17,118 +17,128 @@
   <script src="enclitics-data.js"></script>
   <script>
     let currentExample = {};
-    let insertedSlots = {};
+    let insertedMap = {}; // key: slot index, value: enclitic element
 
     function loadExample() {
-      insertedSlots = {};
-      document.getElementById('feedback').textContent = '';
+      insertedMap = {};
       const sentence = document.getElementById('sentence');
       const encliticOptions = document.getElementById('encliticOptions');
+      const feedback = document.getElementById('feedback');
       sentence.innerHTML = '';
       encliticOptions.innerHTML = '';
+      feedback.textContent = '';
 
       currentExample = encliticsExamples[Math.floor(Math.random() * encliticsExamples.length)];
 
       currentExample.parts.forEach((word, i) => {
-        const wb = document.createElement('div');
-        wb.className = 'word-block';
-        wb.textContent = word;
-        sentence.appendChild(wb);
+        const wordBlock = document.createElement('div');
+        wordBlock.className = 'word-block';
+        wordBlock.textContent = word;
+        sentence.appendChild(wordBlock);
 
-        const drop = document.createElement('div');
-        drop.className = 'drop-slot';
-        drop.dataset.index = i+1;
-        drop.addEventListener('dragover', ev => {
-          ev.preventDefault();
-          drop.classList.add('over');
-        });
-        drop.addEventListener('dragleave', () => drop.classList.remove('over'));
-        drop.addEventListener('drop', ev => {
-          ev.preventDefault();
-          drop.classList.remove('over');
-          const encl = ev.dataTransfer.getData('text/plain');
-          if (!(currentExample.enclitics.includes(encl) || currentExample.distractors.includes(encl))) return;
-          // remove from previous slot
-          for (const idx in insertedSlots) {
-            if (insertedSlots[idx] === encl) delete insertedSlots[idx];
-            document.querySelector(`.drop-slot[data-index="${idx}"]`).innerHTML = '';
-          }
-          // place in new
-          const div = document.createElement('div');
-          div.className = 'inserted-enclitic';
-          div.textContent = encl;
-          div.draggable = true;
-          div.addEventListener('dragstart', ev => {
-            ev.dataTransfer.setData('text/plain', encl);
-          });
-          drop.innerHTML = '';
-          drop.appendChild(div);
-          insertedSlots[drop.dataset.index] = encl;
-        });
-        sentence.appendChild(drop);
+        const dropSlot = createDropSlot(i + 1);
+        sentence.appendChild(dropSlot);
       });
-      // after last word, extra slot:
-      const dropLast = document.createElement('div');
-      dropLast.className = 'drop-slot';
-      dropLast.dataset.index = currentExample.parts.length+1;
-      dropLast.addEventListener('dragover', ev => {ev.preventDefault(); dropLast.classList.add('over');});
-      dropLast.addEventListener('dragleave', () => dropLast.classList.remove('over'));
-      dropLast.addEventListener('drop', ev => {
-        ev.preventDefault();
-        dropLast.classList.remove('over');
-        const encl = ev.dataTransfer.getData('text/plain');
-        if (!(currentExample.enclitics.includes(encl) || currentExample.distractors.includes(encl))) return;
-        for (const idx in insertedSlots) {
-          if (insertedSlots[idx] === encl) delete insertedSlots[idx];
-          document.querySelector(`.drop-slot[data-index="${idx}"]`).innerHTML = '';
-        }
-        const div = document.createElement('div');
-        div.className = 'inserted-enclitic';
-        div.textContent = encl;
-        div.draggable = true;
-        div.addEventListener('dragstart', ev => {
-          ev.dataTransfer.setData('text/plain', encl);
-        });
-        dropLast.innerHTML = '';
-        dropLast.appendChild(div);
-        insertedSlots[dropLast.dataset.index] = encl;
-      });
-      sentence.appendChild(dropLast);
 
-      const opts = [...currentExample.enclitics, ...currentExample.distractors].sort(() => Math.random()-0.5);
-      opts.forEach(encl => {
+      // Extra slot after last word
+      const lastSlot = createDropSlot(currentExample.parts.length + 1);
+      sentence.appendChild(lastSlot);
+
+      // Create draggable enclitics
+      const allOptions = [...currentExample.enclitics, ...currentExample.distractors].sort(() => Math.random() - 0.5);
+      allOptions.forEach(text => {
         const opt = document.createElement('div');
         opt.className = 'enclitic-option';
-        opt.textContent = encl;
+        opt.textContent = text;
         opt.draggable = true;
-        opt.addEventListener('dragstart', ev => {
-          ev.dataTransfer.setData('text/plain', encl);
+        opt.addEventListener('dragstart', e => {
+          e.dataTransfer.setData('text/plain', text);
+          e.dataTransfer.setData('source', 'bank');
         });
         encliticOptions.appendChild(opt);
       });
     }
 
-    function checkAnswer() {
-      const feedback = document.getElementById('feedback');
-      const placed = Object.entries(insertedSlots)
-        .filter(([,e]) => currentExample.enclitics.includes(e))
-        .map(([i,e]) => Number(i));
-      let correct = true;
-      currentExample.enclitics.forEach((e, idx) => {
-        const expect = currentExample.correctIndexes[idx];
-        if (!placed.includes(expect)) correct = false;
+    function createDropSlot(index) {
+      const dropSlot = document.createElement('div');
+      dropSlot.className = 'drop-slot';
+      dropSlot.dataset.index = index;
+
+      dropSlot.addEventListener('dragover', e => {
+        e.preventDefault();
+        dropSlot.classList.add('over');
       });
-      if (Object.keys(insertedSlots).length < currentExample.enclitics.length) {
-        feedback.textContent = '❗ Ubaci sve enklitike.';
-        feedback.style.color = 'orange';
-        return;
-      }
-      feedback.textContent = correct ? '✅ Tačno!' : '❌ Nije tačno.';
-      feedback.style.color = correct ? 'green' : 'red';
+
+      dropSlot.addEventListener('dragleave', () => {
+        dropSlot.classList.remove('over');
+      });
+
+      dropSlot.addEventListener('drop', e => {
+        e.preventDefault();
+        dropSlot.classList.remove('over');
+        const enclitic = e.dataTransfer.getData('text/plain');
+        const source = e.dataTransfer.getData('source');
+
+        // Remove same enclitic from other slots
+        for (const idx in insertedMap) {
+          const el = insertedMap[idx];
+          if (el.textContent === enclitic && insertedMap[idx] !== dropSlot.firstChild) {
+            el.remove();
+            delete insertedMap[idx];
+          }
+        }
+
+        // Remove existing enclitic from this slot if any
+        if (dropSlot.firstChild) dropSlot.firstChild.remove();
+
+        const enclEl = document.createElement('div');
+        enclEl.className = 'inserted-enclitic';
+        enclEl.textContent = enclitic;
+        enclEl.draggable = true;
+
+        enclEl.addEventListener('dragstart', ev => {
+          ev.dataTransfer.setData('text/plain', enclitic);
+          ev.dataTransfer.setData('source', 'slot');
+        });
+
+        dropSlot.appendChild(enclEl);
+        insertedMap[index] = enclEl;
+
+        // Remove from bank if source is bank
+        if (source === 'bank') {
+          const options = document.querySelectorAll('.enclitic-option');
+          options.forEach(opt => {
+            if (opt.textContent === enclitic) opt.remove();
+          });
+        }
+      });
+
+      return dropSlot;
     }
 
-    window.loadExample = loadExample;
-    window.checkAnswer = checkAnswer;
+    function checkAnswer() {
+      const feedback = document.getElementById('feedback');
+      const insertedIndexes = Object.keys(insertedMap).map(k => parseInt(k)).sort((a, b) => a - b);
+      const expectedIndexes = currentExample.correctIndexes.sort((a, b) => a - b);
+      const insertedEnclitics = insertedIndexes.map(i => insertedMap[i].textContent);
+      const isCorrect = JSON.stringify(insertedIndexes) === JSON.stringify(expectedIndexes)
+                     && JSON.stringify(insertedEnclitics) === JSON.stringify(currentExample.enclitics);
+
+      // Highlight result
+      for (const i in insertedMap) {
+        const el = insertedMap[i];
+        el.classList.remove('correct', 'incorrect');
+        if (currentExample.correctIndexes.includes(parseInt(i)) && currentExample.enclitics.includes(el.textContent)) {
+          el.classList.add('correct');
+        } else {
+          el.classList.add('incorrect');
+        }
+      }
+
+      feedback.textContent = isCorrect ? '✅ Tačno!' : '❌ Nije tačno.';
+      feedback.style.color = isCorrect ? 'green' : 'red';
+    }
+
     document.addEventListener('DOMContentLoaded', loadExample);
   </script>
 </body>
