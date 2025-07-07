@@ -12,67 +12,75 @@ body {
 .sentence-container {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  align-items: center;
   gap: 12px;
   margin-bottom: 2rem;
 }
 
-.drop-slot {
-  width: 60px;
+.word-block {
+  background-color: #d0f0c0;
+  border-radius: 12px;
+  padding: 0 14px;
   height: 48px;
-  border-radius: 10px;
-  background-color: transparent;
-  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+  white-space: nowrap;
+}
+
+.drop-slot {
+  min-width: 20px;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
 }
 
 .drop-slot.over {
   border: 2px dashed #74b9ff;
 }
 
-.word-block {
-  background-color: #d0f0c0;
-  border-radius: 12px;
-  height: 48px;
-  padding: 0 12px;
-  display: flex;
-  align-items: center;
-  box-shadow: 1px 1px 4px rgba(0,0,0,0.1);
-}
-
-.inserted-enclitic {
-  background-color: #cccccc;
-  border-radius: 10px;
-  height: 100%;
-  padding: 0 10px;
-  display: flex;
-  align-items: center;
-  cursor: grab;
-}
-
-/* после проверки:
-   (добавлять значками и via JS при необходимости) */
-.correct { background-color: #a8e6a3 !important; }
-.incorrect { background-color: #f8b3b3 !important; }
-
 .enclitic-options {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  justify-content: center;
+  gap: 10px;
   margin-bottom: 1.5rem;
 }
 
 .enclitic-option {
-  background-color: #cccccc;
+  background-color: #ccc;
   border-radius: 10px;
-  padding: 0 12px;
+  padding: 0 14px;
+  height: 48px;
   display: flex;
   align-items: center;
-  height: 48px;
   cursor: grab;
   box-shadow: 1px 1px 3px rgba(0,0,0,0.1);
 }
 
-/* кнопка Новый пример — голубая */
+.inserted-enclitic {
+  background-color: #ccc;
+  border-radius: 10px;
+  padding: 0 12px;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: grab;
+}
+
+.correct {
+  background-color: #a8e6a3 !important;
+}
+
+.incorrect {
+  background-color: #f8b3b3 !important;
+}
+
 button {
   padding: 0.6rem 1.5rem;
   background-color: #74b9ff;
@@ -84,5 +92,8 @@ button {
   margin: 0.5rem;
 }
 
-/* feedback styling */
-#feedback { font-weight: bold; margin-top: 1rem; }
+#feedback {
+  font-weight: bold;
+  margin-top: 1rem;
+  font-size: 1.1rem;
+}
