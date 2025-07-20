@@ -166,3 +166,23 @@
       const insertedEnclitics = insertedIndexes.map(i => insertedMap[i].textContent);
       const isCorrect = JSON.stringify(insertedIndexes) === JSON.stringify(expectedIndexes)
                      && JSON.stringify(insertedEnclitics) === JSON.stringify(currentExample.enclitics);
+
+      // Highlight result
+      for (const i in insertedMap) {
+        const el = insertedMap[i];
+        el.classList.remove('correct', 'incorrect');
+        if (currentExample.correctIndexes.includes(parseInt(i)) && currentExample.enclitics.includes(el.textContent)) {
+          el.classList.add('correct');
+        } else {
+          el.classList.add('incorrect');
+        }
+      }
+
+      feedback.textContent = isCorrect ? '✅ Tačno!' : '❌ Nije tačno.';
+      feedback.style.color = isCorrect ? 'green' : 'red';
+    }
+
+    document.addEventListener('DOMContentLoaded', loadExample);
+  </script>
+</body>
+</html>
