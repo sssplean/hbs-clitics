@@ -29,18 +29,24 @@ body {
 }
 
 .drop-slot {
-  min-width: 20px;
-  min-height: 48px;
+  width: 0;
+  min-width: 0;
+  height: 48px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 8px;
   flex-shrink: 0;
-  transition: all 0.2s ease;
+  transition: width 0.2s ease;
 }
 
 .drop-slot.over {
+  width: 40px;
   border: 2px dashed #74b9ff;
+}
+
+.drop-slot:not(:empty) {
+  width: auto;
 }
 
 .enclitic-options {
