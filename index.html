@@ -19,6 +19,18 @@
     let currentExample = {};
     let insertedMap = {}; // key: slot index, value: enclitic element
 
+    function createOption(text) {
+      const opt = document.createElement('div');
+      opt.className = 'enclitic-option';
+      opt.textContent = text;
+      opt.draggable = true;
+      opt.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', text);
+        e.dataTransfer.setData('source', 'bank');
+      });
+      document.getElementById('encliticOptions').appendChild(opt);
+    }
+
     function loadExample() {
       insertedMap = {};
       const sentence = document.getElementById('sentence');
@@ -46,17 +58,26 @@
 
       // Create draggable enclitics
       const allOptions = [...currentExample.enclitics, ...currentExample.distractors].sort(() => Math.random() - 0.5);
-      allOptions.forEach(text => {
-        const opt = document.createElement('div');
-        opt.className = 'enclitic-option';
-        opt.textContent = text;
-        opt.draggable = true;
-        opt.addEventListener('dragstart', e => {
-          e.dataTransfer.setData('text/plain', text);
-          e.dataTransfer.setData('source', 'bank');
-        });
-        encliticOptions.appendChild(opt);
-      });
+      allOptions.forEach(text => createOption(text));
+
+      // Allow dropping enclitics back to bank
+      encliticOptions.ondragover = e => e.preventDefault();
+      encliticOptions.ondrop = e => {
+        e.preventDefault();
+        const enclitic = e.dataTransfer.getData('text/plain');
+        const source = e.dataTransfer.getData('source');
+        const from = e.dataTransfer.getData('from');
+
+        if (source === 'slot') {
+          const fromSlot = document.querySelector(`.drop-slot[data-index='${from}']`);
+          if (fromSlot && fromSlot.firstChild) {
+            fromSlot.firstChild.remove();
+            delete insertedMap[from];
+          }
+        }
+
+        createOption(enclitic);
+      };
     }
 
     function createDropSlot(index) {
@@ -78,18 +99,33 @@
         dropSlot.classList.remove('over');
         const enclitic = e.dataTransfer.getData('text/plain');
         const source = e.dataTransfer.getData('source');
+        const from = e.dataTransfer.getData('from');
+
+        // If dragging from another slot, clear that slot
+        if (source === 'slot') {
+          const fromSlot = document.querySelector(`.drop-slot[data-index='${from}']`);
+          if (fromSlot && fromSlot.firstChild) {
+            fromSlot.firstChild.remove();
+            delete insertedMap[from];
+          }
+        }
 
         // Remove same enclitic from other slots
         for (const idx in insertedMap) {
           const el = insertedMap[idx];
-          if (el.textContent === enclitic && insertedMap[idx] !== dropSlot.firstChild) {
+          if (el.textContent === enclitic) {
             el.remove();
             delete insertedMap[idx];
           }
         }
 
-        // Remove existing enclitic from this slot if any
-        if (dropSlot.firstChild) dropSlot.firstChild.remove();
+        // If slot already has enclitic, return it to bank
+        if (dropSlot.firstChild) {
+          const old = dropSlot.firstChild;
+          createOption(old.textContent);
+          old.remove();
+          delete insertedMap[index];
+        }
 
         const enclEl = document.createElement('div');
         enclEl.className = 'inserted-enclitic';
@@ -99,6 +135,13 @@
         enclEl.addEventListener('dragstart', ev => {
           ev.dataTransfer.setData('text/plain', enclitic);
           ev.dataTransfer.setData('source', 'slot');
+          ev.dataTransfer.setData('from', index);
+        });
+
+        enclEl.addEventListener('dblclick', () => {
+          enclEl.remove();
+          delete insertedMap[index];
+          createOption(enclitic);
         });
 
         dropSlot.appendChild(enclEl);
@@ -123,23 +166,3 @@
       const insertedEnclitics = insertedIndexes.map(i => insertedMap[i].textContent);
       const isCorrect = JSON.stringify(insertedIndexes) === JSON.stringify(expectedIndexes)
                      && JSON.stringify(insertedEnclitics) === JSON.stringify(currentExample.enclitics);
-
-      // Highlight result
-      for (const i in insertedMap) {
-        const el = insertedMap[i];
-        el.classList.remove('correct', 'incorrect');
-        if (currentExample.correctIndexes.includes(parseInt(i)) && currentExample.enclitics.includes(el.textContent)) {
-          el.classList.add('correct');
-        } else {
-          el.classList.add('incorrect');
-        }
-      }
-
-      feedback.textContent = isCorrect ? '✅ Tačno!' : '❌ Nije tačno.';
-      feedback.style.color = isCorrect ? 'green' : 'red';
-    }
-
-    document.addEventListener('DOMContentLoaded', loadExample);
-  </script>
-</body>
-</html>
