@@ -18,8 +18,14 @@
   <script>
     let currentExample = {};
     let insertedMap = {}; // key: slot index, value: enclitic element
+    
+    function optionExists(text) {
+      return Array.from(document.querySelectorAll('.enclitic-option'))
+        .some(opt => opt.textContent === text);
+    }
 
     function createOption(text) {
+      if (optionExists(text)) return;
       const opt = document.createElement('div');
       opt.className = 'enclitic-option';
       opt.textContent = text;
@@ -74,9 +80,8 @@
             fromSlot.firstChild.remove();
             delete insertedMap[from];
           }
+          createOption(enclitic);
         }
-
-        createOption(enclitic);
       };
     }
 
