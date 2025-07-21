@@ -18,7 +18,6 @@
   <script>
     let currentExample = {};
     let insertedMap = {}; // key: slot index, value: enclitic element
-    let draggingDropped = false;
 
     function optionExists(text) {
       return Array.from(document.querySelectorAll('.enclitic-option'))
@@ -34,11 +33,6 @@
       opt.addEventListener('dragstart', e => {
         e.dataTransfer.setData('text/plain', text);
         e.dataTransfer.setData('source', 'bank');
-        draggingDropped = false;
-        opt.remove();
-      });
-      opt.addEventListener('dragend', e => {
-        if (!draggingDropped) createOption(text);
       });
       document.getElementById('encliticOptions').appendChild(opt);
     }
@@ -87,10 +81,7 @@
             delete insertedMap[from];
           }
           createOption(enclitic);
-        } else if (source === 'bank') {
-          createOption(enclitic);
         }
-        draggingDropped = true;
       };
     }
 
@@ -150,13 +141,6 @@
           ev.dataTransfer.setData('text/plain', enclitic);
           ev.dataTransfer.setData('source', 'slot');
           ev.dataTransfer.setData('from', index);
-          draggingDropped = false;
-          enclEl.remove();
-          delete insertedMap[index];
-        });
-
-        enclEl.addEventListener('dragend', ev => {
-          if (!draggingDropped) createOption(enclitic);
         });
 
         enclEl.addEventListener('dblclick', () => {
@@ -167,7 +151,6 @@
 
         dropSlot.appendChild(enclEl);
         insertedMap[index] = enclEl;
-        draggingDropped = true;
 
         // Remove from bank if source is bank
         if (source === 'bank') {
