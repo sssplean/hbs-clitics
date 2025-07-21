@@ -17,7 +17,10 @@
   <script src="enclitics-data.js"></script>
   <script>
     let currentExample = {};
-    let insertedMap = {}; // key: slot index, value: enclitic element
+    // key: slot index, value: array of enclitic elements in that slot
+    let insertedMap = {};
+    // currently dragged element when moving from a slot
+    let draggedEl = null;
 
     function optionExists(text) {
       return Array.from(document.querySelectorAll('.enclitic-option'))
@@ -74,12 +77,12 @@
         const source = e.dataTransfer.getData('source');
         const from = e.dataTransfer.getData('from');
 
-        if (source === 'slot') {
-          const fromSlot = document.querySelector(`.drop-slot[data-index='${from}']`);
-          if (fromSlot && fromSlot.firstChild) {
-            fromSlot.firstChild.remove();
-            delete insertedMap[from];
-          }
+        if (source === 'slot' && draggedEl) {
+          draggedEl.remove();
+          const arr = insertedMap[from] || [];
+          insertedMap[from] = arr.filter(el => el !== draggedEl);
+          if (!insertedMap[from].length) delete insertedMap[from];
+          draggedEl = null;
           createOption(enclitic);
         }
       };
@@ -106,30 +109,24 @@
         const source = e.dataTransfer.getData('source');
         const from = e.dataTransfer.getData('from');
 
-        // If dragging from another slot, clear that slot
-        if (source === 'slot') {
-          const fromSlot = document.querySelector(`.drop-slot[data-index='${from}']`);
-          if (fromSlot && fromSlot.firstChild) {
-            fromSlot.firstChild.remove();
-            delete insertedMap[from];
-          }
+        // If dragging from another slot, remove that specific element
+        if (source === 'slot' && draggedEl) {
+          const fromArr = insertedMap[from] || [];
+          insertedMap[from] = fromArr.filter(el => el !== draggedEl);
+          if (!insertedMap[from].length) delete insertedMap[from];
+          draggedEl.remove();
+          draggedEl = null;
         }
 
-        // Remove same enclitic from other slots
+        // Remove same enclitic from other slots (only one instance allowed)
         for (const idx in insertedMap) {
-          const el = insertedMap[idx];
-          if (el.textContent === enclitic) {
-            el.remove();
-            delete insertedMap[idx];
+          const arr = insertedMap[idx];
+          const found = arr.find(el => el.textContent === enclitic);
+          if (found) {
+            found.remove();
+            insertedMap[idx] = arr.filter(el => el !== found);
+            if (!insertedMap[idx].length) delete insertedMap[idx];
           }
-        }
-
-        // If slot already has enclitic, return it to bank
-        if (dropSlot.firstChild) {
-          const old = dropSlot.firstChild;
-          createOption(old.textContent);
-          old.remove();
-          delete insertedMap[index];
         }
 
         const enclEl = document.createElement('div');
@@ -138,19 +135,23 @@
         enclEl.draggable = true;
 
         enclEl.addEventListener('dragstart', ev => {
+          draggedEl = enclEl;
           ev.dataTransfer.setData('text/plain', enclitic);
           ev.dataTransfer.setData('source', 'slot');
           ev.dataTransfer.setData('from', index);
         });
 
         enclEl.addEventListener('dblclick', () => {
+          const arr = insertedMap[index] || [];
+          insertedMap[index] = arr.filter(el => el !== enclEl);
+          if (!insertedMap[index].length) delete insertedMap[index];
           enclEl.remove();
-          delete insertedMap[index];
           createOption(enclitic);
         });
 
         dropSlot.appendChild(enclEl);
-        insertedMap[index] = enclEl;
+        if (!insertedMap[index]) insertedMap[index] = [];
+        insertedMap[index].push(enclEl);
 
         // Remove from bank if source is bank
         if (source === 'bank') {
@@ -166,17 +167,20 @@
 
     function checkAnswer() {
       const feedback = document.getElementById('feedback');
-      const insertedIndexes = Object.keys(insertedMap).map(k => parseInt(k)).sort((a, b) => a - b);
-      const expectedIndexes = currentExample.correctIndexes.sort((a, b) => a - b);
-      const insertedEnclitics = insertedIndexes.map(i => insertedMap[i].textContent);
-      const isCorrect = JSON.stringify(insertedIndexes) === JSON.stringify(expectedIndexes)
-                     && JSON.stringify(insertedEnclitics) === JSON.stringify(currentExample.enclitics);
+      const insertedPairs = [];
+      Object.keys(insertedMap).map(k => parseInt(k)).sort((a,b) => a - b).forEach(idx => {
+        insertedMap[idx].forEach(el => insertedPairs.push([idx, el.textContent, el]));
+      });
+
+      const expectedPairs = currentExample.enclitics.map((e, i) => [currentExample.correctIndexes[i], e]);
+      const isCorrect = insertedPairs.length === expectedPairs.length &&
+        insertedPairs.every((p, i) => expectedPairs[i] && p[0] === expectedPairs[i][0] && p[1] === expectedPairs[i][1]);
 
       // Highlight result
-      for (const i in insertedMap) {
-        const el = insertedMap[i];
+      insertedPairs.forEach((p, i) => {
+        const el = p[2];
         el.classList.remove('correct', 'incorrect');
-        if (currentExample.correctIndexes.includes(parseInt(i)) && currentExample.enclitics.includes(el.textContent)) {
+        if (expectedPairs[i] && p[0] === expectedPairs[i][0] && p[1] === expectedPairs[i][1]) {
           el.classList.add('correct');
         } else {
           el.classList.add('incorrect');
