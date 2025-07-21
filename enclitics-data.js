@@ -1,5 +1,5 @@
 const encliticsExamples = [
-  {
+  { 
     "parts": ["Petar", "dao", "poklon", "djetetu", "jučer"],
     "enclitics": ["mu", "je"],
     "distractors": ["ga", "se"],
