@@ -32,21 +32,25 @@ body {
   width: 0;
   min-width: 0;
   height: 48px;
+  padding: 0 8px;
+  margin: 0 -8px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 8px;
   flex-shrink: 0;
-  transition: width 0.2s ease;
+  transition: width 0.2s ease, margin 0.2s ease;
 }
 
 .drop-slot.over {
   width: 40px;
+  margin: 0;
   border: 2px dashed #74b9ff;
 }
 
 .drop-slot:not(:empty) {
   width: auto;
+  margin: 0;
 }
 
 .enclitic-options {
