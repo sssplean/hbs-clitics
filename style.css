@@ -108,3 +108,75 @@ button {
   margin-top: 1rem;
   font-size: 1.1rem;
 }
+
+h1 {
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 2rem;
+}
+
+.scoreboard {
+  width: 100%;
+  max-width: 300px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto auto;
+  background-color: #2e6139;
+  color: white;
+  margin-top: 2rem;
+  padding: 0.5rem;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.score-heading {
+  text-align: center;
+  border-bottom: 2px dashed #fff;
+  padding-bottom: 0.25rem;
+}
+
+.score-heading:first-child {
+  border-right: 2px dashed #fff;
+}
+
+.score-column {
+  min-height: 40px;
+  padding: 0.5rem 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.score-column:first-child {
+  border-right: 2px dashed #fff;
+}
+
+.tally-block {
+  display: flex;
+  position: relative;
+  width: 30px;
+  height: 20px;
+  gap: 2px;
+}
+
+.tally-bar {
+  width: 2px;
+  height: 100%;
+  background-color: white;
+}
+
+.tally-block.full::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background-color: white;
+  transform: translateY(-50%);
+}
+
+.score-percent {
+  color: white;
+  margin-top: 0.5rem;
+  font-weight: bold;
+}

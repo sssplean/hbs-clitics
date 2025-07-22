@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
+  <h1>Vežbač Enklitika</h1>
   <div class="sentence-container" id="sentence"></div>
   <div class="enclitic-options" id="encliticOptions"></div>
   <div class="buttons">
@@ -13,6 +14,13 @@
     <button onclick="checkAnswer()">✅ Gotovo</button>
   </div>
   <div id="feedback"></div>
+  <div class="scoreboard" id="scoreboard">
+    <div class="score-heading">Tačno</div>
+    <div class="score-heading">Netačno</div>
+    <div id="correct-tally" class="score-column"></div>
+    <div id="incorrect-tally" class="score-column"></div>
+  </div>
+  <div id="score-percent" class="score-percent"></div>
 
   <script src="enclitics-data.js"></script>
   <script>
@@ -21,6 +29,8 @@
     let insertedMap = {};
     // currently dragged element when moving from a slot
     let draggedEl = null;
+    let scoreCorrect = 0;
+    let scoreIncorrect = 0;
 
     function getNextIndex(idx) {
       const val = parseFloat(idx);
@@ -111,6 +121,41 @@
         e.dataTransfer.setData('source', 'bank');
       });
       document.getElementById('encliticOptions').appendChild(opt);
+    }
+
+    function renderTally(count) {
+      let html = '';
+      const groups = Math.floor(count / 5);
+      const remainder = count % 5;
+      for (let i = 0; i < groups; i++) {
+        html += `<div class="tally-block full">` +
+                `<span class="tally-bar"></span>` +
+                `<span class="tally-bar"></span>` +
+                `<span class="tally-bar"></span>` +
+                `<span class="tally-bar"></span>` +
+                `</div>`;
+      }
+      if (remainder) {
+        html += '<div class="tally-block">';
+        for (let i = 0; i < remainder; i++) {
+          html += '<span class="tally-bar"></span>';
+        }
+        html += '</div>';
+      }
+      return html;
+    }
+
+    function updateScoreboard(isCorrect) {
+      if (isCorrect === true) {
+        scoreCorrect++;
+      } else if (isCorrect === false) {
+        scoreIncorrect++;
+      }
+      document.getElementById('correct-tally').innerHTML = renderTally(scoreCorrect);
+      document.getElementById('incorrect-tally').innerHTML = renderTally(scoreIncorrect);
+      const total = scoreCorrect + scoreIncorrect;
+      const pct = total ? Math.round((scoreCorrect / total) * 100) : 0;
+      document.getElementById('score-percent').textContent = pct + '%';
     }
 
     function loadExample() {
@@ -315,9 +360,13 @@
 
       feedback.textContent = isCorrect ? '✅ Tačno!' : '❌ Nije tačno.';
       feedback.style.color = isCorrect ? 'green' : 'red';
+      updateScoreboard(isCorrect);
     }
 
-    document.addEventListener('DOMContentLoaded', loadExample);
+    document.addEventListener('DOMContentLoaded', () => {
+      updateScoreboard(null);
+      loadExample();
+    });
   </script>
 </body>
 </html>
