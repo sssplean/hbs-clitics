@@ -50,12 +50,28 @@
         const idx = parseFloat(slot.dataset.index);
         const base = Math.floor(idx);
 
+        // Never remove the base drop slot
+        if (idx === base) return;
+
         const sameBaseSlots = Array.from(parent.querySelectorAll('.drop-slot'))
           .filter(s => Math.floor(parseFloat(s.dataset.index)) === base);
+        const subSlots = sameBaseSlots.filter(s => parseFloat(s.dataset.index) !== base);
 
-        if (sameBaseSlots.length <= 1) return;
+        // Keep at least one sub-slot available
+        if (subSlots.length <= 1) return;
 
         const next = slot.nextElementSibling;
+
+        // If there are exactly two sub-slots and the following one is empty,
+        // remove that trailing empty slot instead of the current one
+        if (subSlots.length === 2 && next && next.classList.contains('drop-slot') &&
+            Math.floor(parseFloat(next.dataset.index)) === base &&
+            next.children.length === 0) {
+          parent.removeChild(next);
+          delete insertedMap[next.dataset.index];
+          return;
+        }
+
         parent.removeChild(slot);
         delete insertedMap[slot.dataset.index];
 
