@@ -284,19 +284,24 @@
     function checkAnswer() {
       const feedback = document.getElementById('feedback');
       const insertedPairs = [];
-      Object.keys(insertedMap).map(k => parseInt(k)).sort((a,b) => a - b).forEach(idx => {
-        insertedMap[idx].forEach(el => insertedPairs.push([idx, el.textContent, el]));
-      });
+      Object.keys(insertedMap)
+        .sort((a, b) => parseFloat(a) - parseFloat(b))
+        .forEach(idx => {
+          insertedMap[idx].forEach(el => {
+            insertedPairs.push([parseFloat(idx), el.textContent, el]);
+          });
+        });
 
       const expectedPairs = currentExample.enclitics.map((e, i) => [currentExample.correctIndexes[i], e]);
+      const expectedSet = new Set(expectedPairs.map(p => `${p[0]}|${p[1]}`));
       const isCorrect = insertedPairs.length === expectedPairs.length &&
-        insertedPairs.every((p, i) => expectedPairs[i] && p[0] === expectedPairs[i][0] && p[1] === expectedPairs[i][1]);
+        insertedPairs.every(p => expectedSet.has(`${p[0]}|${p[1]}`));
 
       // Highlight result
-      insertedPairs.forEach((p, i) => {
+      insertedPairs.forEach(p => {
         const el = p[2];
         el.classList.remove('correct', 'incorrect');
-        if (expectedPairs[i] && p[0] === expectedPairs[i][0] && p[1] === expectedPairs[i][1]) {
+        if (expectedSet.has(`${p[0]}|${p[1]}`)) {
           el.classList.add('correct');
         } else {
           el.classList.add('incorrect');
