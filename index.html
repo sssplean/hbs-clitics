@@ -44,25 +44,30 @@
       }
     }
 
-    function removeSlotIfNeeded(slot) {
-      if (!slot || slot.children.length) return;
-      const idx = slot.dataset.index;
-      const parent = slot.parentElement;
-      const next = slot.nextElementSibling;
-      delete insertedMap[idx];
+          function removeSlotIfNeeded(slot) {
+        if (!slot || slot.children.length) return;
+        const idx = slot.dataset.index;
+        const parent = slot.parentElement;
+        const next = slot.nextElementSibling;
+        parent && parent.removeChild(slot);
+        delete insertedMap[idx];
 
-      if (next && next.classList.contains('drop-slot') &&
-          Math.floor(parseFloat(next.dataset.index)) === Math.floor(parseFloat(idx))) {
-        const afterNext = next.nextElementSibling;
-        parent.removeChild(next);
-        delete insertedMap[next.dataset.index];
+        if (next && next.classList.contains('drop-slot') &&
+            Math.floor(parseFloat(next.dataset.index)) === Math.floor(parseFloat(idx))) {
+          if (next.children.length === 0) {
+            const afterNext = next.nextElementSibling;
+            parent.removeChild(next);
+            delete insertedMap[next.dataset.index];
 
-        if (afterNext && afterNext.classList.contains('drop-slot') &&
-            Math.floor(parseFloat(afterNext.dataset.index)) === Math.floor(parseFloat(idx))) {
-          renumberFollowingSlots(afterNext);
+            if (afterNext && afterNext.classList.contains('drop-slot') &&
+                Math.floor(parseFloat(afterNext.dataset.index)) === Math.floor(parseFloat(idx))) {
+              renumberFollowingSlots(afterNext);
+            }
+          } else {
+            renumberFollowingSlots(next);
+          }
         }
       }
-    }
 
     function optionExists(text) {
       return Array.from(document.querySelectorAll('.enclitic-option'))
@@ -154,9 +159,19 @@
         const from = e.dataTransfer.getData('from');
         let idx = dropSlot.dataset.index;
 
-        if (dropSlot.children.length > 0) {
+        if (source === 'slot' && from === idx) {
           draggedEl = null;
           return;
+        }
+
+        if (dropSlot.children.length > 0) {
+          const existing = dropSlot.firstElementChild;
+          const oldText = existing.textContent;
+          existing.remove();
+          const arr = insertedMap[idx] || [];
+          insertedMap[idx] = arr.filter(el => el !== existing);
+          if (!insertedMap[idx].length) delete insertedMap[idx];
+          createOption(oldText);
         }
 
         // If dragging from another slot, remove that specific element
