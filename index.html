@@ -22,6 +22,47 @@
     // currently dragged element when moving from a slot
     let draggedEl = null;
 
+    function getNextIndex(idx) {
+      const val = parseFloat(idx);
+      return parseFloat(((Math.floor(val * 10) + 1) / 10).toFixed(1));
+    }
+
+    function renumberFollowingSlots(startSlot) {
+      if (!startSlot) return;
+      const base = Math.floor(parseFloat(startSlot.dataset.index));
+      let slot = startSlot;
+      while (slot && slot.classList.contains('drop-slot')) {
+        const oldIdx = parseFloat(slot.dataset.index);
+        if (Math.floor(oldIdx) !== base) break;
+        const newIdx = parseFloat((oldIdx - 0.1).toFixed(1));
+        slot.dataset.index = newIdx;
+        if (insertedMap[oldIdx]) {
+          insertedMap[newIdx] = insertedMap[oldIdx];
+          delete insertedMap[oldIdx];
+        }
+        slot = slot.nextElementSibling;
+      }
+    }
+
+    function removeSlotIfNeeded(slot) {
+      if (!slot || slot.children.length) return;
+      const next = slot.nextElementSibling;
+      const parent = slot.parentElement;
+      const idx = slot.dataset.index;
+      parent && parent.removeChild(slot);
+      delete insertedMap[idx];
+
+      if (next && next.classList.contains('drop-slot') &&
+          Math.floor(parseFloat(next.dataset.index)) === Math.floor(parseFloat(idx))) {
+        if (next.children.length === 0) {
+          parent.removeChild(next);
+          delete insertedMap[next.dataset.index];
+        } else {
+          renumberFollowingSlots(next);
+        }
+      }
+    }
+
     function optionExists(text) {
       return Array.from(document.querySelectorAll('.enclitic-option'))
         .some(opt => opt.textContent === text);
@@ -78,10 +119,12 @@
         const from = e.dataTransfer.getData('from');
 
         if (source === 'slot' && draggedEl) {
+          const slot = draggedEl.parentElement;
           draggedEl.remove();
           const arr = insertedMap[from] || [];
           insertedMap[from] = arr.filter(el => el !== draggedEl);
           if (!insertedMap[from].length) delete insertedMap[from];
+          removeSlotIfNeeded(slot);
           draggedEl = null;
           createOption(enclitic);
         }
@@ -108,13 +151,16 @@
         const enclitic = e.dataTransfer.getData('text/plain');
         const source = e.dataTransfer.getData('source');
         const from = e.dataTransfer.getData('from');
+        const idx = dropSlot.dataset.index;
 
         // If dragging from another slot, remove that specific element
         if (source === 'slot' && draggedEl) {
           const fromArr = insertedMap[from] || [];
           insertedMap[from] = fromArr.filter(el => el !== draggedEl);
           if (!insertedMap[from].length) delete insertedMap[from];
+          const fromSlot = draggedEl.parentElement;
           draggedEl.remove();
+          removeSlotIfNeeded(fromSlot);
           draggedEl = null;
         }
 
@@ -138,20 +184,22 @@
           draggedEl = enclEl;
           ev.dataTransfer.setData('text/plain', enclitic);
           ev.dataTransfer.setData('source', 'slot');
-          ev.dataTransfer.setData('from', index);
+          ev.dataTransfer.setData('from', dropSlot.dataset.index);
         });
 
         enclEl.addEventListener('dblclick', () => {
-          const arr = insertedMap[index] || [];
-          insertedMap[index] = arr.filter(el => el !== enclEl);
-          if (!insertedMap[index].length) delete insertedMap[index];
+          const i = dropSlot.dataset.index;
+          const arr = insertedMap[i] || [];
+          insertedMap[i] = arr.filter(el => el !== enclEl);
+          if (!insertedMap[i].length) delete insertedMap[i];
           enclEl.remove();
+          removeSlotIfNeeded(dropSlot);
           createOption(enclitic);
         });
 
         dropSlot.appendChild(enclEl);
-        if (!insertedMap[index]) insertedMap[index] = [];
-        insertedMap[index].push(enclEl);
+        if (!insertedMap[idx]) insertedMap[idx] = [];
+        insertedMap[idx].push(enclEl);
 
         // Remove from bank if source is bank
         if (source === 'bank') {
@@ -159,6 +207,12 @@
           options.forEach(opt => {
             if (opt.textContent === enclitic) opt.remove();
           });
+        }
+
+        const nextIdx = getNextIndex(idx);
+        if (!document.querySelector(`.drop-slot[data-index="${nextIdx}"]`)) {
+          const newSlot = createDropSlot(nextIdx);
+          dropSlot.parentElement.insertBefore(newSlot, dropSlot.nextElementSibling);
         }
       });
 
