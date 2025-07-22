@@ -33,13 +33,13 @@ body {
   min-width: 0;
   height: 48px;
   padding: 0 8px;
-  margin: 0 -8px;
+  margin: 0 -10px;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: 8px;
   flex-shrink: 0;
-  transition: width 0.2s ease, margin 0.2s ease;
+  transition: width 0.2s ease, margin 0.2s ease, padding 0.2s ease;
 }
 
 .drop-slot.over {
@@ -48,8 +48,9 @@ body {
   border: 2px dashed #74b9ff;
 }
 
-.drop-slot:not(:empty) {
+.drop-slot.has-enclitic {
   width: auto;
+  padding: 0;
   margin: 0;
 }
 
