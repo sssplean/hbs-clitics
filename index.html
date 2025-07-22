@@ -44,25 +44,55 @@
       }
     }
 
-    function removeSlotIfNeeded(slot) {
-      if (!slot || slot.children.length) return;
-      const idx = slot.dataset.index;
-      const parent = slot.parentElement;
-      const next = slot.nextElementSibling;
-      delete insertedMap[idx];
+      function removeSlotIfNeeded(slot) {
+        if (!slot || slot.children.length) return;
+        const parent = slot.parentElement;
+        const idx = parseFloat(slot.dataset.index);
+        const base = Math.floor(idx);
 
-      if (next && next.classList.contains('drop-slot') &&
-          Math.floor(parseFloat(next.dataset.index)) === Math.floor(parseFloat(idx))) {
-        const afterNext = next.nextElementSibling;
-        parent.removeChild(next);
-        delete insertedMap[next.dataset.index];
+        const sameBaseSlots = Array.from(parent.querySelectorAll('.drop-slot'))
+          .filter(s => Math.floor(parseFloat(s.dataset.index)) === base);
+        const subSlots = sameBaseSlots.filter(s => parseFloat(s.dataset.index) !== base);
+        const baseHasEnclitic = insertedMap[base] && insertedMap[base].length;
 
-        if (afterNext && afterNext.classList.contains('drop-slot') &&
-            Math.floor(parseFloat(afterNext.dataset.index)) === Math.floor(parseFloat(idx))) {
-          renumberFollowingSlots(afterNext);
+        if (idx === base) {
+          if (subSlots.length) {
+            const last = subSlots[subSlots.length - 1];
+            if (!baseHasEnclitic && last.children.length === 0) {
+              parent.removeChild(last);
+              delete insertedMap[last.dataset.index];
+            }
+          }
+          return;
+        }
+
+        if (subSlots.length === 1) {
+          if (!baseHasEnclitic) {
+            parent.removeChild(slot);
+            delete insertedMap[slot.dataset.index];
+          }
+          return;
+        }
+
+        const next = slot.nextElementSibling;
+
+        if (next && next.classList.contains('drop-slot') &&
+            Math.floor(parseFloat(next.dataset.index)) === base &&
+            next.children.length === 0) {
+          parent.removeChild(next);
+          delete insertedMap[next.dataset.index];
+          renumberFollowingSlots(next);
+          return;
+        }
+
+        parent.removeChild(slot);
+        delete insertedMap[slot.dataset.index];
+
+        if (next && next.classList.contains('drop-slot') &&
+            Math.floor(parseFloat(next.dataset.index)) === base) {
+          renumberFollowingSlots(next);
         }
       }
-    }
 
     function optionExists(text) {
       return Array.from(document.querySelectorAll('.enclitic-option'))
@@ -152,11 +182,21 @@
         const enclitic = e.dataTransfer.getData('text/plain');
         const source = e.dataTransfer.getData('source');
         const from = e.dataTransfer.getData('from');
-        const idx = dropSlot.dataset.index;
+        let idx = dropSlot.dataset.index;
 
-        if (dropSlot.children.length > 0) {
+        if (source === 'slot' && from === idx) {
           draggedEl = null;
           return;
+        }
+
+        if (dropSlot.children.length > 0) {
+          const existing = dropSlot.firstElementChild;
+          const oldText = existing.textContent;
+          existing.remove();
+          const arr = insertedMap[idx] || [];
+          insertedMap[idx] = arr.filter(el => el !== existing);
+          if (!insertedMap[idx].length) delete insertedMap[idx];
+          createOption(oldText);
         }
 
         // If dragging from another slot, remove that specific element
@@ -166,8 +206,25 @@
           if (!insertedMap[from].length) delete insertedMap[from];
           const fromSlot = draggedEl.parentElement;
           draggedEl.remove();
-          removeSlotIfNeeded(fromSlot);
+
+          const fromIdx = parseFloat(fromSlot.dataset.index);
+          const sameBase = Math.floor(fromIdx) === Math.floor(parseFloat(idx));
+          const isImmediate = fromSlot.nextElementSibling === dropSlot;
+
+          if (sameBase && isImmediate) {
+            const oldIdx = idx;
+            fromSlot.remove();
+            dropSlot.dataset.index = fromSlot.dataset.index;
+            if (insertedMap[oldIdx]) {
+              insertedMap[dropSlot.dataset.index] = insertedMap[oldIdx];
+              delete insertedMap[oldIdx];
+            }
+            renumberFollowingSlots(dropSlot.nextElementSibling);
+          } else {
+            removeSlotIfNeeded(fromSlot);
+          }
           draggedEl = null;
+          idx = dropSlot.dataset.index;
         }
 
         // Remove same enclitic from other slots (only one instance allowed)
