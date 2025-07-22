@@ -46,6 +46,7 @@
 
           function removeSlotIfNeeded(slot) {
         if (!slot || slot.children.length) return;
+        slot.classList.remove('has-enclitic');
         const parent = slot.parentElement;
         const idx = parseFloat(slot.dataset.index);
         const base = Math.floor(idx);
@@ -152,6 +153,7 @@
         if (source === 'slot' && draggedEl) {
           const slot = draggedEl.parentElement;
           draggedEl.remove();
+          slot.classList.remove('has-enclitic');
           const arr = insertedMap[from] || [];
           insertedMap[from] = arr.filter(el => el !== draggedEl);
           if (!insertedMap[from].length) delete insertedMap[from];
@@ -206,6 +208,7 @@
           if (!insertedMap[from].length) delete insertedMap[from];
           const fromSlot = draggedEl.parentElement;
           draggedEl.remove();
+          fromSlot.classList.remove('has-enclitic');
 
           const fromIdx = parseFloat(fromSlot.dataset.index);
           const sameBase = Math.floor(fromIdx) === Math.floor(parseFloat(idx));
@@ -257,10 +260,12 @@
           if (!insertedMap[i].length) delete insertedMap[i];
           enclEl.remove();
           removeSlotIfNeeded(dropSlot);
+          if (dropSlot.parentElement) dropSlot.classList.remove('has-enclitic');
           createOption(enclitic);
         });
 
         dropSlot.appendChild(enclEl);
+        dropSlot.classList.add('has-enclitic');
         insertedMap[idx] = [enclEl];
 
         // Remove from bank if source is bank
