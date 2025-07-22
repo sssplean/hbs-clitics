@@ -46,21 +46,28 @@
 
           function removeSlotIfNeeded(slot) {
         if (!slot || slot.children.length) return;
-        const idx = slot.dataset.index;
         const parent = slot.parentElement;
+        const idx = parseFloat(slot.dataset.index);
+        const base = Math.floor(idx);
+
+        const sameBaseSlots = Array.from(parent.querySelectorAll('.drop-slot'))
+          .filter(s => Math.floor(parseFloat(s.dataset.index)) === base);
+
+        if (sameBaseSlots.length <= 1) return;
+
         const next = slot.nextElementSibling;
-        parent && parent.removeChild(slot);
-        delete insertedMap[idx];
+        parent.removeChild(slot);
+        delete insertedMap[slot.dataset.index];
 
         if (next && next.classList.contains('drop-slot') &&
-            Math.floor(parseFloat(next.dataset.index)) === Math.floor(parseFloat(idx))) {
-          if (next.children.length === 0) {
+            Math.floor(parseFloat(next.dataset.index)) === base) {
+          if (next.children.length === 0 && sameBaseSlots.length > 2) {
             const afterNext = next.nextElementSibling;
             parent.removeChild(next);
             delete insertedMap[next.dataset.index];
 
             if (afterNext && afterNext.classList.contains('drop-slot') &&
-                Math.floor(parseFloat(afterNext.dataset.index)) === Math.floor(parseFloat(idx))) {
+                Math.floor(parseFloat(afterNext.dataset.index)) === base) {
               renumberFollowingSlots(afterNext);
             }
           } else {
