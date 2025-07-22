@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Enklitika Trener</title>
+  <title>Vežbač enklitika</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -152,7 +152,7 @@
         const enclitic = e.dataTransfer.getData('text/plain');
         const source = e.dataTransfer.getData('source');
         const from = e.dataTransfer.getData('from');
-        const idx = dropSlot.dataset.index;
+        let idx = dropSlot.dataset.index;
 
         if (dropSlot.children.length > 0) {
           draggedEl = null;
@@ -166,8 +166,25 @@
           if (!insertedMap[from].length) delete insertedMap[from];
           const fromSlot = draggedEl.parentElement;
           draggedEl.remove();
-          removeSlotIfNeeded(fromSlot);
+
+          const fromIdx = parseFloat(fromSlot.dataset.index);
+          const sameBase = Math.floor(fromIdx) === Math.floor(parseFloat(idx));
+          const isImmediate = fromSlot.nextElementSibling === dropSlot;
+
+          if (sameBase && isImmediate) {
+            const oldIdx = idx;
+            fromSlot.remove();
+            dropSlot.dataset.index = fromSlot.dataset.index;
+            if (insertedMap[oldIdx]) {
+              insertedMap[dropSlot.dataset.index] = insertedMap[oldIdx];
+              delete insertedMap[oldIdx];
+            }
+            renumberFollowingSlots(dropSlot.nextElementSibling);
+          } else {
+            removeSlotIfNeeded(fromSlot);
+          }
           draggedEl = null;
+          idx = dropSlot.dataset.index;
         }
 
         // Remove same enclitic from other slots (only one instance allowed)
