@@ -50,25 +50,38 @@
         const idx = parseFloat(slot.dataset.index);
         const base = Math.floor(idx);
 
-        // Never remove the base drop slot
-        if (idx === base) return;
-
         const sameBaseSlots = Array.from(parent.querySelectorAll('.drop-slot'))
           .filter(s => Math.floor(parseFloat(s.dataset.index)) === base);
         const subSlots = sameBaseSlots.filter(s => parseFloat(s.dataset.index) !== base);
+        const baseHasEnclitic = insertedMap[base] && insertedMap[base].length;
 
-        // Keep at least one sub-slot available
-        if (subSlots.length <= 1) return;
+        if (idx === base) {
+          if (subSlots.length) {
+            const last = subSlots[subSlots.length - 1];
+            if (!baseHasEnclitic && last.children.length === 0) {
+              parent.removeChild(last);
+              delete insertedMap[last.dataset.index];
+            }
+          }
+          return;
+        }
+
+        if (subSlots.length === 1) {
+          if (!baseHasEnclitic) {
+            parent.removeChild(slot);
+            delete insertedMap[slot.dataset.index];
+          }
+          return;
+        }
 
         const next = slot.nextElementSibling;
 
-        // If there are exactly two sub-slots and the following one is empty,
-        // remove that trailing empty slot instead of the current one
-        if (subSlots.length === 2 && next && next.classList.contains('drop-slot') &&
+        if (next && next.classList.contains('drop-slot') &&
             Math.floor(parseFloat(next.dataset.index)) === base &&
             next.children.length === 0) {
           parent.removeChild(next);
           delete insertedMap[next.dataset.index];
+          renumberFollowingSlots(next);
           return;
         }
 
@@ -77,18 +90,7 @@
 
         if (next && next.classList.contains('drop-slot') &&
             Math.floor(parseFloat(next.dataset.index)) === base) {
-          if (next.children.length === 0 && sameBaseSlots.length > 2) {
-            const afterNext = next.nextElementSibling;
-            parent.removeChild(next);
-            delete insertedMap[next.dataset.index];
-
-            if (afterNext && afterNext.classList.contains('drop-slot') &&
-                Math.floor(parseFloat(afterNext.dataset.index)) === base) {
-              renumberFollowingSlots(afterNext);
-            }
-          } else {
-            renumberFollowingSlots(next);
-          }
+          renumberFollowingSlots(next);
         }
       }
 
