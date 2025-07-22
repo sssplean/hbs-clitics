@@ -51,7 +51,7 @@ body {
 .drop-slot.has-enclitic {
   width: auto;
   padding: 0;
-  margin-left: -4px;
+  margin: 0;
 }
 
 .enclitic-options {
