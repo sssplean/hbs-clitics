@@ -46,19 +46,20 @@
 
     function removeSlotIfNeeded(slot) {
       if (!slot || slot.children.length) return;
-      const next = slot.nextElementSibling;
-      const parent = slot.parentElement;
       const idx = slot.dataset.index;
-      parent && parent.removeChild(slot);
+      const parent = slot.parentElement;
+      const next = slot.nextElementSibling;
       delete insertedMap[idx];
 
       if (next && next.classList.contains('drop-slot') &&
           Math.floor(parseFloat(next.dataset.index)) === Math.floor(parseFloat(idx))) {
-        if (next.children.length === 0) {
-          parent.removeChild(next);
-          delete insertedMap[next.dataset.index];
-        } else {
-          renumberFollowingSlots(next);
+        const afterNext = next.nextElementSibling;
+        parent.removeChild(next);
+        delete insertedMap[next.dataset.index];
+
+        if (afterNext && afterNext.classList.contains('drop-slot') &&
+            Math.floor(parseFloat(afterNext.dataset.index)) === Math.floor(parseFloat(idx))) {
+          renumberFollowingSlots(afterNext);
         }
       }
     }
@@ -153,6 +154,11 @@
         const from = e.dataTransfer.getData('from');
         const idx = dropSlot.dataset.index;
 
+        if (dropSlot.children.length > 0) {
+          draggedEl = null;
+          return;
+        }
+
         // If dragging from another slot, remove that specific element
         if (source === 'slot' && draggedEl) {
           const fromArr = insertedMap[from] || [];
@@ -198,8 +204,7 @@
         });
 
         dropSlot.appendChild(enclEl);
-        if (!insertedMap[idx]) insertedMap[idx] = [];
-        insertedMap[idx].push(enclEl);
+        insertedMap[idx] = [enclEl];
 
         // Remove from bank if source is bank
         if (source === 'bank') {
