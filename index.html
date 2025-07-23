@@ -304,14 +304,15 @@
           createOption(oldText);
         }
 
-        // If dragging from another slot, remove that specific element
-        if (source === 'slot' && draggedEl) {
-          const fromArr = insertedMap[from] || [];
-          insertedMap[from] = fromArr.filter(el => el !== draggedEl);
-          if (!insertedMap[from].length) delete insertedMap[from];
-          const fromSlot = draggedEl.parentElement;
-          draggedEl.remove();
-          fromSlot.classList.remove('has-enclitic');
+          // If dragging from another slot, remove that specific element
+          let baseFrom = null;
+          if (source === 'slot' && draggedEl) {
+            const fromArr = insertedMap[from] || [];
+            insertedMap[from] = fromArr.filter(el => el !== draggedEl);
+            if (!insertedMap[from].length) delete insertedMap[from];
+            const fromSlot = draggedEl.parentElement;
+            draggedEl.remove();
+            fromSlot.classList.remove('has-enclitic');
 
           const fromIdx = parseFloat(fromSlot.dataset.index);
           const sameBase = Math.floor(fromIdx) === Math.floor(parseFloat(idx));
@@ -329,18 +330,21 @@
           } else {
             removeSlotIfNeeded(fromSlot);
           }
-          draggedEl = null;
-          const baseFrom = Math.floor(Math.abs(parseFloat(from)));
-          cleanupAfterRemoval(baseFrom);
-          idx = dropSlot.dataset.index;
-        }
+            draggedEl = null;
+            baseFrom = Math.floor(Math.abs(parseFloat(from)));
+            idx = dropSlot.dataset.index;
+          }
 
-        if (idx.startsWith('-')) {
-          const baseIdx = Math.abs(parseInt(idx));
-          shiftGroupRight(baseIdx, dropSlot.parentElement);
-          dropSlot.dataset.index = baseIdx;
-          idx = dropSlot.dataset.index;
-        }
+          if (idx.startsWith('-')) {
+            const baseIdx = Math.abs(parseInt(idx));
+            shiftGroupRight(baseIdx, dropSlot.parentElement);
+            dropSlot.dataset.index = baseIdx;
+            idx = dropSlot.dataset.index;
+          }
+
+          if (baseFrom !== null) {
+            cleanupAfterRemoval(baseFrom);
+          }
 
         // Remove same enclitic from other slots (only one instance allowed)
         for (const idx in insertedMap) {
