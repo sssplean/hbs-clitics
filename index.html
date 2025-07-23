@@ -337,9 +337,20 @@
 
           if (idx.startsWith('-')) {
             const baseIdx = Math.abs(parseInt(idx));
-            shiftGroupRight(baseIdx, dropSlot.parentElement);
-            dropSlot.dataset.index = baseIdx;
-            idx = dropSlot.dataset.index;
+            if (source === 'slot' && parseFloat(from) === baseIdx) {
+              const oldBase = document.querySelector(
+                `.drop-slot[data-index="${baseIdx}"]`
+              );
+              if (oldBase && oldBase !== dropSlot) {
+                oldBase.remove();
+              }
+              dropSlot.dataset.index = baseIdx;
+              idx = dropSlot.dataset.index;
+            } else {
+              shiftGroupRight(baseIdx, dropSlot.parentElement);
+              dropSlot.dataset.index = baseIdx;
+              idx = dropSlot.dataset.index;
+            }
           }
 
         // Remove same enclitic from other slots (only one instance allowed)
