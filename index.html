@@ -55,6 +55,51 @@
       }
     }
 
+    function shiftGroupRight(baseIdx, parent) {
+      const slots = Array.from(parent.querySelectorAll('.drop-slot'))
+        .filter(s => !s.dataset.index.startsWith('-') &&
+          Math.floor(parseFloat(s.dataset.index)) === baseIdx)
+        .sort((a, b) => parseFloat(b.dataset.index) - parseFloat(a.dataset.index));
+      slots.forEach(s => {
+        const oldIdx = parseFloat(s.dataset.index);
+        const newIdx = parseFloat((oldIdx + 0.1).toFixed(1));
+        s.dataset.index = newIdx;
+        if (insertedMap[oldIdx]) {
+          insertedMap[newIdx] = insertedMap[oldIdx];
+          delete insertedMap[oldIdx];
+        }
+      });
+    }
+
+    function ensureLeftSlot(baseIdx, refSlot) {
+      const parent = refSlot.parentElement;
+      if (!parent.querySelector(`.drop-slot[data-index="-${baseIdx}"]`)) {
+        const left = createDropSlot(`-${baseIdx}`);
+        parent.insertBefore(left, refSlot);
+      }
+    }
+
+    function cleanupAfterRemoval(baseIdx) {
+      const parent = document.getElementById('sentence');
+      const neg = parent.querySelector(`.drop-slot[data-index="-${baseIdx}"]`);
+      const baseSlots = Array.from(parent.querySelectorAll('.drop-slot'))
+        .filter(s => !s.dataset.index.startsWith('-') &&
+          Math.floor(parseFloat(s.dataset.index)) === baseIdx)
+        .sort((a, b) => parseFloat(a.dataset.index) - parseFloat(b.dataset.index));
+
+      if (baseSlots.length && baseSlots[0].children.length === 0 && baseSlots.length > 1) {
+        const firstSub = baseSlots[1];
+        parent.removeChild(baseSlots[0]);
+        renumberFollowingSlots(firstSub);
+        baseSlots.shift();
+      }
+
+      const anyFilled = baseSlots.some(s => s.children.length > 0);
+      if (!anyFilled && neg) {
+        parent.removeChild(neg);
+      }
+    }
+
           function removeSlotIfNeeded(slot) {
         if (!slot || slot.children.length) return;
         slot.classList.remove('has-enclitic');
@@ -207,6 +252,8 @@
           insertedMap[from] = arr.filter(el => el !== draggedEl);
           if (!insertedMap[from].length) delete insertedMap[from];
           removeSlotIfNeeded(slot);
+          const baseFrom = Math.floor(Math.abs(parseFloat(from)));
+          cleanupAfterRemoval(baseFrom);
           draggedEl = null;
           createOption(enclitic);
         }
@@ -276,6 +323,15 @@
             removeSlotIfNeeded(fromSlot);
           }
           draggedEl = null;
+          const baseFrom = Math.floor(Math.abs(parseFloat(from)));
+          cleanupAfterRemoval(baseFrom);
+          idx = dropSlot.dataset.index;
+        }
+
+        if (idx.startsWith('-')) {
+          const baseIdx = Math.abs(parseInt(idx));
+          shiftGroupRight(baseIdx, dropSlot.parentElement);
+          dropSlot.dataset.index = baseIdx;
           idx = dropSlot.dataset.index;
         }
 
@@ -309,6 +365,8 @@
           if (!insertedMap[i].length) delete insertedMap[i];
           enclEl.remove();
           removeSlotIfNeeded(dropSlot);
+          const baseIdx = Math.floor(Math.abs(parseFloat(i)));
+          cleanupAfterRemoval(baseIdx);
           if (dropSlot.parentElement) dropSlot.classList.remove('has-enclitic');
           createOption(enclitic);
         });
@@ -316,6 +374,9 @@
         dropSlot.appendChild(enclEl);
         dropSlot.classList.add('has-enclitic');
         insertedMap[idx] = [enclEl];
+        if (!idx.toString().includes('.')) {
+          ensureLeftSlot(Math.abs(parseInt(idx)), dropSlot);
+        }
 
         // Remove from bank if source is bank
         if (source === 'bank') {
