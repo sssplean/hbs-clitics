@@ -314,6 +314,10 @@
             draggedEl.remove();
             fromSlot.classList.remove('has-enclitic');
 
+          const movingBaseLeft =
+            !from.includes('.') && idx.startsWith('-') &&
+            Math.abs(parseFloat(from)) === Math.abs(parseFloat(idx));
+
           const fromIdx = parseFloat(fromSlot.dataset.index);
           const sameBase = Math.floor(fromIdx) === Math.floor(parseFloat(idx));
           const isImmediate = fromSlot.nextElementSibling === dropSlot;
@@ -327,6 +331,8 @@
               delete insertedMap[oldIdx];
             }
             renumberFollowingSlots(dropSlot.nextElementSibling);
+          } else if (movingBaseLeft) {
+            fromSlot.remove();
           } else {
             removeSlotIfNeeded(fromSlot);
           }
