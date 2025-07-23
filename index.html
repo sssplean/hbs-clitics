@@ -9,26 +9,27 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Vežbač Enklitika</h1>
-  <div class="sentence-container" id="sentence"></div>
-  <div id="translation" class="translation"></div>
-  <div class="enclitic-options" id="encliticOptions"></div>
-  <div class="buttons">
-    <button onclick="checkAnswer()">🙋 Gotovo</button>
-    <button onclick="loadExample()">🤦 Novi primjer</button>
+  <div class="score-side">
+    <div class="score-heading">Tačno</div>
+    <div id="correct-tally" class="score-column"></div>
   </div>
-  <div id="feedback"></div>
-  <div class="scoreboard" id="scoreboard">
-    <div class="score-side">
-      <div class="score-heading">Tačno</div>
-      <div id="correct-tally" class="score-column"></div>
+  <div class="main-container">
+    <h1>Vežbač Enklitika</h1>
+    <div class="sentence-container" id="sentence"></div>
+    <div id="translation" class="translation"></div>
+    <div class="enclitic-options" id="encliticOptions"></div>
+    <div class="buttons">
+      <button onclick="checkAnswer()">🙋 Gotovo</button>
+      <button onclick="loadExample()">🤦 Novi primjer</button>
     </div>
-    <div class="score-side">
-      <div class="score-heading">Nije tačno</div>
-      <div id="incorrect-tally" class="score-column"></div>
-    </div>
+    <div id="score-percent" class="score-percent"></div>
+    <button id="reset-score" onclick="resetScore()">Сброс</button>
+    <div id="feedback"></div>
   </div>
-  <div id="score-percent" class="score-percent"></div>
+  <div class="score-side">
+    <div class="score-heading">Nije tačno</div>
+    <div id="incorrect-tally" class="score-column"></div>
+  </div>
 
   <script src="enclitics-data.js"></script>
   <script>
@@ -211,6 +212,12 @@
       document.getElementById('score-percent').textContent = pct + '%';
     }
 
+    function resetScore() {
+      scoreCorrect = 0;
+      scoreIncorrect = 0;
+      updateScoreboard(null);
+    }
+
     function loadExample() {
       insertedMap = {};
       const sentence = document.getElementById('sentence');
@@ -314,6 +321,10 @@
             draggedEl.remove();
             fromSlot.classList.remove('has-enclitic');
 
+          const movingBaseLeft =
+            !from.includes('.') && idx.startsWith('-') &&
+            Math.abs(parseFloat(from)) === Math.abs(parseFloat(idx));
+
           const fromIdx = parseFloat(fromSlot.dataset.index);
           const sameBase = Math.floor(fromIdx) === Math.floor(parseFloat(idx));
           const isImmediate = fromSlot.nextElementSibling === dropSlot;
@@ -327,6 +338,8 @@
               delete insertedMap[oldIdx];
             }
             renumberFollowingSlots(dropSlot.nextElementSibling);
+          } else if (movingBaseLeft) {
+            fromSlot.remove();
           } else {
             removeSlotIfNeeded(fromSlot);
           }
@@ -337,9 +350,20 @@
 
           if (idx.startsWith('-')) {
             const baseIdx = Math.abs(parseInt(idx));
-            shiftGroupRight(baseIdx, dropSlot.parentElement);
-            dropSlot.dataset.index = baseIdx;
-            idx = dropSlot.dataset.index;
+            if (source === 'slot' && parseFloat(from) === baseIdx) {
+              const oldBase = document.querySelector(
+                `.drop-slot[data-index="${baseIdx}"]`
+              );
+              if (oldBase && oldBase !== dropSlot) {
+                oldBase.remove();
+              }
+              dropSlot.dataset.index = baseIdx;
+              idx = dropSlot.dataset.index;
+            } else {
+              shiftGroupRight(baseIdx, dropSlot.parentElement);
+              dropSlot.dataset.index = baseIdx;
+              idx = dropSlot.dataset.index;
+            }
           }
 
         // Remove same enclitic from other slots (only one instance allowed)
