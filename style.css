@@ -123,23 +123,29 @@ h1 {
 .scoreboard {
   width: 100%;
   max-width: 500px;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  grid-template-rows: auto auto;
+  display: flex;
+  justify-content: space-between;
   color: white;
   margin-top: 2rem;
   padding: 0.5rem;
-  font-family: 'Segoe UI', sans-serif;
+}
+
+.score-side {
+  flex: 1 1 45%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.score-side:first-child {
+  border-right: 2px dashed #fff;
 }
 
 .score-heading {
   text-align: center;
   border-bottom: 2px dashed #fff;
   padding-bottom: 0.25rem;
-}
-
-.score-heading:first-child {
-  border-right: 2px dashed #fff;
+  font-family: 'Gloria Hallelujah', cursive;
 }
 
 .score-column {
@@ -151,9 +157,6 @@ h1 {
   gap: 6px;
 }
 
-.score-column:first-child {
-  border-right: 2px dashed #fff;
-}
 
 .tally-block {
   display: flex;
@@ -168,6 +171,8 @@ h1 {
   height: 100%;
   margin: 2px;
   background-color: white;
+  transform: rotate(-5deg);
+  font-family: 'Gloria Hallelujah', cursive;
 }
 
 .tally-block.full::after {
@@ -178,11 +183,12 @@ h1 {
   width: 100%;
   height: 2px;
   background-color: white;
-  transform: translateY(-50%);
+  transform: translateY(-50%) rotate(-10deg);
 }
 
 .score-percent {
   color: white;
   margin-top: 0.5rem;
   font-weight: bold;
+  font-family: 'Gloria Hallelujah', cursive;
 }
