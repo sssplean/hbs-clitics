@@ -102,7 +102,7 @@
       }
 
       const anyFilled = baseSlots.some(s => s.children.length > 0);
-      if (!anyFilled && neg) {
+      if (!anyFilled && neg && neg.children.length === 0) {
         parent.removeChild(neg);
       }
     }
@@ -342,10 +342,6 @@
             idx = dropSlot.dataset.index;
           }
 
-          if (baseFrom !== null) {
-            cleanupAfterRemoval(baseFrom);
-          }
-
         // Remove same enclitic from other slots (only one instance allowed)
         for (const idx in insertedMap) {
           const arr = insertedMap[idx];
@@ -387,6 +383,10 @@
         insertedMap[idx] = [enclEl];
         if (!idx.toString().includes('.')) {
           ensureLeftSlot(Math.abs(parseInt(idx)), dropSlot);
+        }
+
+        if (baseFrom !== null) {
+          cleanupAfterRemoval(baseFrom);
         }
 
         // Remove from bank if source is bank
