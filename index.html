@@ -9,26 +9,27 @@
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <h1>Vežbač Enklitika</h1>
-  <div class="sentence-container" id="sentence"></div>
-  <div id="translation" class="translation"></div>
-  <div class="enclitic-options" id="encliticOptions"></div>
-  <div class="buttons">
-    <button onclick="checkAnswer()">🙋 Gotovo</button>
-    <button onclick="loadExample()">🤦 Novi primjer</button>
+  <div class="score-side">
+    <div class="score-heading">Tačno</div>
+    <div id="correct-tally" class="score-column"></div>
   </div>
-  <div id="feedback"></div>
-  <div class="scoreboard" id="scoreboard">
-    <div class="score-side">
-      <div class="score-heading">Tačno</div>
-      <div id="correct-tally" class="score-column"></div>
+  <div class="main-container">
+    <h1>Vežbač Enklitika</h1>
+    <div class="sentence-container" id="sentence"></div>
+    <div id="translation" class="translation"></div>
+    <div class="enclitic-options" id="encliticOptions"></div>
+    <div class="buttons">
+      <button onclick="checkAnswer()">🙋 Gotovo</button>
+      <button onclick="loadExample()">🤦 Novi primjer</button>
     </div>
-    <div class="score-side">
-      <div class="score-heading">Nije tačno</div>
-      <div id="incorrect-tally" class="score-column"></div>
-    </div>
+    <div id="score-percent" class="score-percent"></div>
+    <button id="reset-score" onclick="resetScore()">Сброс</button>
+    <div id="feedback"></div>
   </div>
-  <div id="score-percent" class="score-percent"></div>
+  <div class="score-side">
+    <div class="score-heading">Nije tačno</div>
+    <div id="incorrect-tally" class="score-column"></div>
+  </div>
 
   <script src="enclitics-data.js"></script>
   <script>
@@ -209,6 +210,12 @@
       const total = scoreCorrect + scoreIncorrect;
       const pct = total ? Math.round((scoreCorrect / total) * 100) : 0;
       document.getElementById('score-percent').textContent = pct + '%';
+    }
+
+    function resetScore() {
+      scoreCorrect = 0;
+      scoreIncorrect = 0;
+      updateScoreboard(null);
     }
 
     function loadExample() {
