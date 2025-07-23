@@ -5,5 +5,5 @@ const encliticsExamples = [
     "distractors": ["ga", "se"],
     "correctIndexes": [1, 1.1, 4],
     "translation": "Петар дал ему вчера подарок для ребёнка."
+
   },
-];
