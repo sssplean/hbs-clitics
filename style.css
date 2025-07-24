@@ -1,12 +1,19 @@
-body { 
+body {
   font-family: 'Segoe UI', sans-serif;
   font-size: 18px;
   background-color: #013220;
   margin: 0;
   padding: 2rem;
   display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.main-container {
+  display: flex;
   flex-direction: column;
   align-items: center;
+  margin: 0 2rem;
 }
 
 .sentence-container {
@@ -131,14 +138,16 @@ h1 {
 }
 
 .score-side {
-  flex: 1 1 45%;
+  width: 150px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  color: white;
+  margin: 0 3rem;
 }
 
 .score-side:first-child {
-  border-right: 2px dashed #fff;
+  border-right: none;
 }
 
 .score-heading {
@@ -146,6 +155,17 @@ h1 {
   border-bottom: 2px dashed #fff;
   padding-bottom: 0.25rem;
   font-family: 'Gloria Hallelujah', cursive;
+  transition: transform 0.2s ease, color 0.2s ease;
+}
+
+.correct-heading {
+  color: #7CFC00;
+  transform: scale(1.2);
+}
+
+.incorrect-heading {
+  color: #ff4d4d;
+  transform: scale(1.2);
 }
 
 .score-column {
@@ -191,4 +211,21 @@ h1 {
   margin-top: 0.5rem;
   font-weight: bold;
   font-family: 'Gloria Hallelujah', cursive;
+}
+
+#reset-score {
+  background-color: #eee;
+  color: #013220;
+  border: 2px solid #ccc;
+  border-radius: 0 0 10px 10px;
+  padding: 0.4rem 1rem;
+  font-family: 'Gloria Hallelujah', cursive;
+  transform: rotate(-3deg);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  margin-top: 0.5rem;
+  cursor: pointer;
+}
+
+#reset-score:hover {
+  background-color: #e0e0e0;
 }
