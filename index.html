@@ -22,8 +22,14 @@
       <button onclick="checkAnswer()">🙋 Gotovo</button>
       <button onclick="loadExample()">🤦 Novi primjer</button>
     </div>
-    <div id="score-percent" class="score-percent"></div>
-    <button id="reset-score" onclick="resetScore()">Сброс</button>
+    <div class="score-percent">
+      <button id="reset-score" onclick="resetScore()">🔄</button>
+      <span id="score-text">0%</span> правильных ответов
+    </div>
+  </div>
+  <div class="score-side">
+    <div id="incorrect-heading" class="score-heading">Nije tačno</div>
+    <div id="incorrect-tally" class="score-column"></div>
   </div>
   <div class="score-side">
     <div id="incorrect-heading" class="score-heading">Nije tačno</div>
@@ -208,14 +214,18 @@
       document.getElementById('incorrect-tally').innerHTML = renderTally(scoreIncorrect);
       const total = scoreCorrect + scoreIncorrect;
       const pct = total ? Math.round((scoreCorrect / total) * 100) : 0;
-      document.getElementById('score-percent').textContent = pct + '%';
+      document.getElementById('score-text').textContent = pct + '%';
     }
 
-    function resetScore() {
-      scoreCorrect = 0;
-      scoreIncorrect = 0;
+   function resetScore() {
+     scoreCorrect = 0;
+     scoreIncorrect = 0;
+      const ch = document.getElementById('correct-heading');
+      const ih = document.getElementById('incorrect-heading');
+      ch.classList.remove('correct-heading', 'incorrect-heading');
+      ih.classList.remove('correct-heading', 'incorrect-heading');
       updateScoreboard(null);
-    }
+   }
 
     function loadExample() {
       insertedMap = {};
