@@ -10,7 +10,7 @@
 </head>
 <body>
   <div class="score-side">
-    <div class="score-heading">Tačno</div>
+    <div id="correct-heading" class="score-heading">Tačno</div>
     <div id="correct-tally" class="score-column"></div>
   </div>
   <div class="main-container">
@@ -24,10 +24,9 @@
     </div>
     <div id="score-percent" class="score-percent"></div>
     <button id="reset-score" onclick="resetScore()">Сброс</button>
-    <div id="feedback"></div>
   </div>
   <div class="score-side">
-    <div class="score-heading">Nije tačno</div>
+    <div id="incorrect-heading" class="score-heading">Nije tačno</div>
     <div id="incorrect-tally" class="score-column"></div>
   </div>
 
@@ -222,10 +221,12 @@
       insertedMap = {};
       const sentence = document.getElementById('sentence');
       const encliticOptions = document.getElementById('encliticOptions');
-      const feedback = document.getElementById('feedback');
+      const ch = document.getElementById('correct-heading');
+      const ih = document.getElementById('incorrect-heading');
       sentence.innerHTML = '';
       encliticOptions.innerHTML = '';
-      feedback.textContent = '';
+      ch.classList.remove('correct-heading', 'incorrect-heading');
+      ih.classList.remove('correct-heading', 'incorrect-heading');
 
       currentExample = encliticsExamples[Math.floor(Math.random() * encliticsExamples.length)];
 
@@ -432,7 +433,8 @@
     }
 
     function checkAnswer() {
-      const feedback = document.getElementById('feedback');
+      const ch = document.getElementById('correct-heading');
+      const ih = document.getElementById('incorrect-heading');
       const insertedPairs = [];
       Object.keys(insertedMap)
         .sort((a, b) => parseFloat(a) - parseFloat(b))
@@ -458,8 +460,13 @@
         }
       });
 
-      feedback.textContent = isCorrect ? '✅ Tačno!' : '❌ Nije tačno.';
-      feedback.style.color = isCorrect ? 'green' : 'red';
+      ch.classList.remove('correct-heading', 'incorrect-heading');
+      ih.classList.remove('correct-heading', 'incorrect-heading');
+      if (isCorrect) {
+        ch.classList.add('correct-heading');
+      } else {
+        ih.classList.add('incorrect-heading');
+      }
       updateScoreboard(isCorrect);
     }
 
