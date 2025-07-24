@@ -235,3 +235,20 @@ h1 {
 #reset-score:hover {
   background-color: #e0e0e0;
 }
+
+#reset-score {
+  background-color: #eee;
+  color: #013220;
+  border: 2px solid #ccc;
+  border-radius: 0 0 10px 10px;
+  padding: 0.4rem 1rem;
+  font-family: 'Gloria Hallelujah', cursive;
+  transform: rotate(-3deg);
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  margin-top: 0.5rem;
+  cursor: pointer;
+}
+
+#reset-score:hover {
+  background-color: #e0e0e0;
+}
