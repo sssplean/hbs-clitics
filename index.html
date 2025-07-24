@@ -239,19 +239,18 @@
       const translationEl = document.getElementById('translation');
       translationEl.textContent = currentExample.translation || '';
 
+      const firstSlot = createDropSlot(1);
+      sentence.appendChild(firstSlot);
+
       currentExample.parts.forEach((word, i) => {
         const wordBlock = document.createElement('div');
         wordBlock.className = 'word-block';
         wordBlock.textContent = word;
         sentence.appendChild(wordBlock);
 
-        const dropSlot = createDropSlot(i + 1);
+        const dropSlot = createDropSlot(i + 2);
         sentence.appendChild(dropSlot);
       });
-
-      // Extra slot after last word
-      const lastSlot = createDropSlot(currentExample.parts.length + 1);
-      sentence.appendChild(lastSlot);
 
       // Create draggable enclitics
       const allOptions = [...currentExample.enclitics, ...currentExample.distractors].sort(() => Math.random() - 0.5);

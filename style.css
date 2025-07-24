@@ -177,6 +177,11 @@ h1 {
   gap: 6px;
 }
 
+#incorrect-tally {
+  margin: 0.5rem;
+  margin-right: 0.5rem;
+}
+
 
 .tally-block {
   display: flex;
@@ -209,7 +214,7 @@ h1 {
 
 .score-percent {
   color: white;
-  margin-top: 0.5rem;
+  margin-top: 1rem;
   font-weight: bold;
   font-family: 'Gloria Hallelujah', cursive;
   display: flex;
@@ -218,37 +223,5 @@ h1 {
 }
 
 #reset-score {
-  background-color: #eee;
-  color: #013220;
-  border: 2px solid #ccc;
-  border-radius: 6px;
-  width: 40px;
-  height: 40px;
-  padding: 0;
-  font-size: 1.2rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-}
-
-#reset-score:hover {
-  background-color: #e0e0e0;
-}
-
-#reset-score {
-  background-color: #eee;
-  color: #013220;
-  border: 2px solid #ccc;
-  border-radius: 0 0 10px 10px;
-  padding: 0.4rem 1rem;
-  font-family: 'Gloria Hallelujah', cursive;
-  transform: rotate(-3deg);
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-  margin-top: 0.5rem;
-  cursor: pointer;
-}
-
-#reset-score:hover {
-  background-color: #e0e0e0;
+  background-color: #ff6b81;
 }
