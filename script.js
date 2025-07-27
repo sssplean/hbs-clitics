@@ -1,0 +1,445 @@
+    let currentExample = {};
+    // key: slot index, value: array of enclitic elements in that slot
+    let insertedMap = {};
+    // currently dragged element when moving from a slot
+    let draggedEl = null;
+    let scoreCorrect = 0;
+    let scoreIncorrect = 0;
+
+    function getNextIndex(idx) {
+      const val = parseFloat(idx);
+      return parseFloat(((Math.floor(val * 10) + 1) / 10).toFixed(1));
+    }
+
+    function renumberFollowingSlots(startSlot) {
+      if (!startSlot) return;
+      const base = Math.floor(parseFloat(startSlot.dataset.index));
+      let slot = startSlot;
+      while (slot && slot.classList.contains('drop-slot')) {
+        const oldIdx = parseFloat(slot.dataset.index);
+        if (Math.floor(oldIdx) !== base) break;
+        const newIdx = parseFloat((oldIdx - 0.1).toFixed(1));
+        slot.dataset.index = newIdx;
+        if (insertedMap[oldIdx]) {
+          insertedMap[newIdx] = insertedMap[oldIdx];
+          delete insertedMap[oldIdx];
+        }
+        slot = slot.nextElementSibling;
+      }
+    }
+
+    function shiftGroupRight(baseIdx, parent) {
+      const slots = Array.from(parent.querySelectorAll('.drop-slot'))
+        .filter(s => !s.dataset.index.startsWith('-') &&
+          Math.floor(parseFloat(s.dataset.index)) === baseIdx)
+        .sort((a, b) => parseFloat(b.dataset.index) - parseFloat(a.dataset.index));
+      slots.forEach(s => {
+        const oldIdx = parseFloat(s.dataset.index);
+        const newIdx = parseFloat((oldIdx + 0.1).toFixed(1));
+        s.dataset.index = newIdx;
+        if (insertedMap[oldIdx]) {
+          insertedMap[newIdx] = insertedMap[oldIdx];
+          delete insertedMap[oldIdx];
+        }
+      });
+    }
+
+    function ensureLeftSlot(baseIdx, refSlot) {
+      const parent = refSlot.parentElement;
+      if (!parent.querySelector(`.drop-slot[data-index="-${baseIdx}"]`)) {
+        const left = createDropSlot(`-${baseIdx}`);
+        parent.insertBefore(left, refSlot);
+      }
+    }
+
+    function cleanupAfterRemoval(baseIdx) {
+      const parent = document.getElementById('sentence');
+      const neg = parent.querySelector(`.drop-slot[data-index="-${baseIdx}"]`);
+      const baseSlots = Array.from(parent.querySelectorAll('.drop-slot'))
+        .filter(s => !s.dataset.index.startsWith('-') &&
+          Math.floor(parseFloat(s.dataset.index)) === baseIdx)
+        .sort((a, b) => parseFloat(a.dataset.index) - parseFloat(b.dataset.index));
+
+      if (baseSlots.length && baseSlots[0].children.length === 0 && baseSlots.length > 1) {
+        const firstSub = baseSlots[1];
+        parent.removeChild(baseSlots[0]);
+        renumberFollowingSlots(firstSub);
+        baseSlots.shift();
+      }
+
+      const anyFilled = baseSlots.some(s => s.children.length > 0);
+      if (!anyFilled && neg && neg.children.length === 0) {
+        parent.removeChild(neg);
+      }
+    }
+
+          function removeSlotIfNeeded(slot) {
+        if (!slot || slot.children.length) return;
+        slot.classList.remove('has-enclitic');
+        const parent = slot.parentElement;
+        const idx = parseFloat(slot.dataset.index);
+        const base = Math.floor(idx);
+
+        const sameBaseSlots = Array.from(parent.querySelectorAll('.drop-slot'))
+          .filter(s => Math.floor(parseFloat(s.dataset.index)) === base);
+        const subSlots = sameBaseSlots.filter(s => parseFloat(s.dataset.index) !== base);
+        const baseHasEnclitic = insertedMap[base] && insertedMap[base].length;
+
+        if (idx === base) {
+          if (subSlots.length) {
+            const last = subSlots[subSlots.length - 1];
+            if (!baseHasEnclitic && last.children.length === 0) {
+              parent.removeChild(last);
+              delete insertedMap[last.dataset.index];
+            }
+          }
+          return;
+        }
+
+        if (subSlots.length === 1) {
+          if (!baseHasEnclitic) {
+            parent.removeChild(slot);
+            delete insertedMap[slot.dataset.index];
+          }
+          return;
+        }
+
+        const next = slot.nextElementSibling;
+
+        if (next && next.classList.contains('drop-slot') &&
+            Math.floor(parseFloat(next.dataset.index)) === base &&
+            next.children.length === 0) {
+          parent.removeChild(next);
+          delete insertedMap[next.dataset.index];
+          renumberFollowingSlots(next);
+          return;
+        }
+
+        parent.removeChild(slot);
+        delete insertedMap[slot.dataset.index];
+
+        if (next && next.classList.contains('drop-slot') &&
+            Math.floor(parseFloat(next.dataset.index)) === base) {
+          renumberFollowingSlots(next);
+        }
+      }
+
+    function optionExists(text) {
+      return Array.from(document.querySelectorAll('.enclitic-option'))
+        .some(opt => opt.textContent === text);
+    }
+
+    function createOption(text) {
+      if (optionExists(text)) return;
+      const opt = document.createElement('div');
+      opt.className = 'enclitic-option';
+      opt.textContent = text;
+      opt.draggable = true;
+      opt.addEventListener('dragstart', e => {
+        e.dataTransfer.setData('text/plain', text);
+        e.dataTransfer.setData('source', 'bank');
+      });
+      document.getElementById('encliticOptions').appendChild(opt);
+    }
+
+    function renderTally(count) {
+      let html = '';
+      const groups = Math.floor(count / 5);
+      const remainder = count % 5;
+      for (let i = 0; i < groups; i++) {
+        html += `<div class="tally-block full">` +
+                `<span class="tally-bar"></span>` +
+                `<span class="tally-bar"></span>` +
+                `<span class="tally-bar"></span>` +
+                `<span class="tally-bar"></span>` +
+                `</div>`;
+      }
+      if (remainder) {
+        html += '<div class="tally-block">';
+        for (let i = 0; i < remainder; i++) {
+          html += '<span class="tally-bar"></span>';
+        }
+        html += '</div>';
+      }
+      return html;
+    }
+
+    function updateScoreboard(isCorrect) {
+      if (isCorrect === true) {
+        scoreCorrect++;
+      } else if (isCorrect === false) {
+        scoreIncorrect++;
+      }
+      document.getElementById('correct-tally').innerHTML = renderTally(scoreCorrect);
+      document.getElementById('incorrect-tally').innerHTML = renderTally(scoreIncorrect);
+      const total = scoreCorrect + scoreIncorrect;
+      const pct = total ? Math.round((scoreCorrect / total) * 100) : 0;
+      document.getElementById('score-text').textContent = pct + '%';
+    }
+
+   function resetScore() {
+     scoreCorrect = 0;
+     scoreIncorrect = 0;
+      const ch = document.getElementById('correct-heading');
+      const ih = document.getElementById('incorrect-heading');
+      ch.classList.remove('correct-heading', 'incorrect-heading');
+      ih.classList.remove('correct-heading', 'incorrect-heading');
+      updateScoreboard(null);
+   }
+
+    function loadExample() {
+      insertedMap = {};
+      const sentence = document.getElementById('sentence');
+      const encliticOptions = document.getElementById('encliticOptions');
+      const ch = document.getElementById('correct-heading');
+      const ih = document.getElementById('incorrect-heading');
+      sentence.innerHTML = '';
+      encliticOptions.innerHTML = '';
+      ch.classList.remove('correct-heading', 'incorrect-heading');
+      ih.classList.remove('correct-heading', 'incorrect-heading');
+
+      currentExample = encliticsExamples[Math.floor(Math.random() * encliticsExamples.length)];
+
+      const translationEl = document.getElementById('translation');
+      translationEl.textContent = currentExample.translation || '';
+
+      const firstSlot = createDropSlot(1);
+      sentence.appendChild(firstSlot);
+
+      currentExample.parts.forEach((word, i) => {
+        const wordBlock = document.createElement('div');
+        wordBlock.className = 'word-block';
+        wordBlock.textContent = word;
+        sentence.appendChild(wordBlock);
+
+        const dropSlot = createDropSlot(i + 2);
+        sentence.appendChild(dropSlot);
+      });
+
+      // Create draggable enclitics
+      const allOptions = [...currentExample.enclitics, ...currentExample.distractors].sort(() => Math.random() - 0.5);
+      allOptions.forEach(text => createOption(text));
+
+      // Allow dropping enclitics back to bank
+      encliticOptions.ondragover = e => e.preventDefault();
+      encliticOptions.ondrop = e => {
+        e.preventDefault();
+        const enclitic = e.dataTransfer.getData('text/plain');
+        const source = e.dataTransfer.getData('source');
+        const from = e.dataTransfer.getData('from');
+
+        if (source === 'slot' && draggedEl) {
+          const slot = draggedEl.parentElement;
+          draggedEl.remove();
+          slot.classList.remove('has-enclitic');
+          const arr = insertedMap[from] || [];
+          insertedMap[from] = arr.filter(el => el !== draggedEl);
+          if (!insertedMap[from].length) delete insertedMap[from];
+          removeSlotIfNeeded(slot);
+          const baseFrom = Math.floor(Math.abs(parseFloat(from)));
+          cleanupAfterRemoval(baseFrom);
+          draggedEl = null;
+          createOption(enclitic);
+        }
+      };
+    }
+
+    function createDropSlot(index) {
+      const dropSlot = document.createElement('div');
+      dropSlot.className = 'drop-slot';
+      dropSlot.dataset.index = index;
+
+      dropSlot.addEventListener('dragover', e => {
+        e.preventDefault();
+        dropSlot.classList.add('over');
+      });
+
+      dropSlot.addEventListener('dragleave', () => {
+        dropSlot.classList.remove('over');
+      });
+
+      dropSlot.addEventListener('drop', e => {
+        e.preventDefault();
+        dropSlot.classList.remove('over');
+        const enclitic = e.dataTransfer.getData('text/plain');
+        const source = e.dataTransfer.getData('source');
+        const from = e.dataTransfer.getData('from');
+        let idx = dropSlot.dataset.index;
+
+        if (source === 'slot' && from === idx) {
+          draggedEl = null;
+          return;
+        }
+
+        if (dropSlot.children.length > 0) {
+          const existing = dropSlot.firstElementChild;
+          const oldText = existing.textContent;
+          existing.remove();
+          const arr = insertedMap[idx] || [];
+          insertedMap[idx] = arr.filter(el => el !== existing);
+          if (!insertedMap[idx].length) delete insertedMap[idx];
+          createOption(oldText);
+        }
+
+          // If dragging from another slot, remove that specific element
+          let baseFrom = null;
+          if (source === 'slot' && draggedEl) {
+            const fromArr = insertedMap[from] || [];
+            insertedMap[from] = fromArr.filter(el => el !== draggedEl);
+            if (!insertedMap[from].length) delete insertedMap[from];
+            const fromSlot = draggedEl.parentElement;
+            draggedEl.remove();
+            fromSlot.classList.remove('has-enclitic');
+
+          const movingBaseLeft =
+            !from.includes('.') && idx.startsWith('-') &&
+            Math.abs(parseFloat(from)) === Math.abs(parseFloat(idx));
+
+          const fromIdx = parseFloat(fromSlot.dataset.index);
+          const sameBase = Math.floor(fromIdx) === Math.floor(parseFloat(idx));
+          const isImmediate = fromSlot.nextElementSibling === dropSlot;
+
+          if (sameBase && isImmediate) {
+            const oldIdx = idx;
+            fromSlot.remove();
+            dropSlot.dataset.index = fromSlot.dataset.index;
+            if (insertedMap[oldIdx]) {
+              insertedMap[dropSlot.dataset.index] = insertedMap[oldIdx];
+              delete insertedMap[oldIdx];
+            }
+            renumberFollowingSlots(dropSlot.nextElementSibling);
+          } else if (movingBaseLeft) {
+            fromSlot.remove();
+          } else {
+            removeSlotIfNeeded(fromSlot);
+          }
+            draggedEl = null;
+            baseFrom = Math.floor(Math.abs(parseFloat(from)));
+            idx = dropSlot.dataset.index;
+          }
+
+          if (idx.startsWith('-')) {
+            const baseIdx = Math.abs(parseInt(idx));
+            if (source === 'slot' && parseFloat(from) === baseIdx) {
+              const oldBase = document.querySelector(
+                `.drop-slot[data-index="${baseIdx}"]`
+              );
+              if (oldBase && oldBase !== dropSlot) {
+                oldBase.remove();
+              }
+              dropSlot.dataset.index = baseIdx;
+              idx = dropSlot.dataset.index;
+            } else {
+              shiftGroupRight(baseIdx, dropSlot.parentElement);
+              dropSlot.dataset.index = baseIdx;
+              idx = dropSlot.dataset.index;
+            }
+          }
+
+        // Remove same enclitic from other slots (only one instance allowed)
+        for (const idx in insertedMap) {
+          const arr = insertedMap[idx];
+          const found = arr.find(el => el.textContent === enclitic);
+          if (found) {
+            found.remove();
+            insertedMap[idx] = arr.filter(el => el !== found);
+            if (!insertedMap[idx].length) delete insertedMap[idx];
+          }
+        }
+
+        const enclEl = document.createElement('div');
+        enclEl.className = 'inserted-enclitic';
+        enclEl.textContent = enclitic;
+        enclEl.draggable = true;
+
+        enclEl.addEventListener('dragstart', ev => {
+          draggedEl = enclEl;
+          ev.dataTransfer.setData('text/plain', enclitic);
+          ev.dataTransfer.setData('source', 'slot');
+          ev.dataTransfer.setData('from', dropSlot.dataset.index);
+        });
+
+        enclEl.addEventListener('dblclick', () => {
+          const i = dropSlot.dataset.index;
+          const arr = insertedMap[i] || [];
+          insertedMap[i] = arr.filter(el => el !== enclEl);
+          if (!insertedMap[i].length) delete insertedMap[i];
+          enclEl.remove();
+          removeSlotIfNeeded(dropSlot);
+          const baseIdx = Math.floor(Math.abs(parseFloat(i)));
+          cleanupAfterRemoval(baseIdx);
+          if (dropSlot.parentElement) dropSlot.classList.remove('has-enclitic');
+          createOption(enclitic);
+        });
+
+        dropSlot.appendChild(enclEl);
+        dropSlot.classList.add('has-enclitic');
+        insertedMap[idx] = [enclEl];
+        if (!idx.toString().includes('.')) {
+          ensureLeftSlot(Math.abs(parseInt(idx)), dropSlot);
+        }
+
+        if (baseFrom !== null) {
+          cleanupAfterRemoval(baseFrom);
+        }
+
+        // Remove from bank if source is bank
+        if (source === 'bank') {
+          const options = document.querySelectorAll('.enclitic-option');
+          options.forEach(opt => {
+            if (opt.textContent === enclitic) opt.remove();
+          });
+        }
+
+        const nextIdx = getNextIndex(idx);
+        if (!document.querySelector(`.drop-slot[data-index="${nextIdx}"]`)) {
+          const newSlot = createDropSlot(nextIdx);
+          dropSlot.parentElement.insertBefore(newSlot, dropSlot.nextElementSibling);
+        }
+      });
+
+      return dropSlot;
+    }
+
+    function checkAnswer() {
+      const ch = document.getElementById('correct-heading');
+      const ih = document.getElementById('incorrect-heading');
+      const insertedPairs = [];
+      Object.keys(insertedMap)
+        .sort((a, b) => parseFloat(a) - parseFloat(b))
+        .forEach(idx => {
+          insertedMap[idx].forEach(el => {
+            insertedPairs.push([parseFloat(idx), el.textContent, el]);
+          });
+        });
+
+      const expectedPairs = currentExample.enclitics.map((e, i) => [currentExample.correctIndexes[i], e]);
+      const expectedSet = new Set(expectedPairs.map(p => `${p[0]}|${p[1]}`));
+      const isCorrect = insertedPairs.length === expectedPairs.length &&
+        insertedPairs.every(p => expectedSet.has(`${p[0]}|${p[1]}`));
+
+      // Highlight result
+      insertedPairs.forEach(p => {
+        const el = p[2];
+        el.classList.remove('correct', 'incorrect');
+        if (expectedSet.has(`${p[0]}|${p[1]}`)) {
+          el.classList.add('correct');
+        } else {
+          el.classList.add('incorrect');
+        }
+      });
+
+      ch.classList.remove('correct-heading', 'incorrect-heading');
+      ih.classList.remove('correct-heading', 'incorrect-heading');
+      if (isCorrect) {
+        ch.classList.add('correct-heading');
+      } else {
+        ih.classList.add('incorrect-heading');
+      }
+      updateScoreboard(isCorrect);
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      updateScoreboard(null);
+      loadExample();
+    });
