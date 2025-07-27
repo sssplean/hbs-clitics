@@ -185,6 +185,7 @@
       ch.classList.remove('correct-heading', 'incorrect-heading');
       ih.classList.remove('correct-heading', 'incorrect-heading');
       updateScoreboard(null);
+      loadExample();
    }
 
     function loadExample() {
