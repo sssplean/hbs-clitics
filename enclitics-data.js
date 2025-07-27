@@ -1,6 +1,6 @@
 const encliticsExamples = [
   {
-    "parts": ["Petar", "juče", "dao", "poklon", "djete"],
+    "parts": ["Petar", "juče", "dao", "poklon", "dijete"],
     "enclitics": ["mu", "je", "za"],
     "distractors": ["ga", "se"],
     "correctIndexes": [2, 2.1, 5],
