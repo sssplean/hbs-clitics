@@ -177,7 +177,7 @@
       document.getElementById('score-text').textContent = pct + '%';
     }
 
-   function resetScore() {
+  function resetScore() {
      scoreCorrect = 0;
      scoreIncorrect = 0;
       const ch = document.getElementById('correct-heading');
@@ -189,6 +189,7 @@
    }
 
     function loadExample() {
+      document.getElementById('check-button').disabled = false;
       insertedMap = {};
       const sentence = document.getElementById('sentence');
       const encliticOptions = document.getElementById('encliticOptions');
@@ -403,6 +404,7 @@
     }
 
     function checkAnswer() {
+      document.getElementById('check-button').disabled = true;
       const ch = document.getElementById('correct-heading');
       const ih = document.getElementById('incorrect-heading');
       const insertedPairs = [];

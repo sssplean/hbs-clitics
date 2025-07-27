@@ -117,6 +117,17 @@ button {
   margin: 0.5rem;
 }
 
+.buttons {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+button:disabled {
+  background-color: #ccc;
+  cursor: default;
+}
+
 #feedback {
   font-weight: bold;
   margin-top: 1rem;
