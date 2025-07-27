@@ -23,3 +23,7 @@ After starting the server, navigate to the printed URL and open `index.html`.
 Contributions are welcome via pull requests. There are no automated tests or
 Node scripts at the moment, so changes can be tested by simply reloading the
 page in the browser.
+
+## License
+
+This project is licensed under the terms of the [MIT License](LICENSE).
