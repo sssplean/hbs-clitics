@@ -392,16 +392,19 @@ h1 {
   justify-content: center;
 }
 
+/* Check button container layout */
 .check-container {
   position: relative;
   width: fit-content;
+  display: flex;
+  justify-content: center;
 }
 
 #auto-delay-button {
   width: 2rem;
   height: 2rem;
   padding: 0;
-  border-radius: 6px;
+  border-radius: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -409,4 +412,9 @@ h1 {
   left: calc(100% + 0.5rem);
   top: 50%;
   transform: translateY(-50%);
+}
+
+#auto-delay-button svg {
+  fill: #000;
+  stroke: #000;
 }
