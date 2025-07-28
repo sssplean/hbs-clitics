@@ -9,6 +9,72 @@ body {
   align-items: flex-start;
 }
 
+@keyframes heading-correct {
+  0% {
+    color: white;
+    transform: scale(1);
+    text-shadow: none;
+  }
+  50% {
+    color: #adff2f;
+    transform: scale(1.35);
+    text-shadow: 0 0 8px #7CFC00;
+  }
+  100% {
+    color: #7CFC00;
+    transform: scale(1.2);
+    text-shadow: none;
+  }
+}
+
+@keyframes heading-incorrect {
+  0% {
+    color: white;
+    transform: scale(1);
+    text-shadow: none;
+  }
+  50% {
+    color: #ff6666;
+    transform: scale(1.35);
+    text-shadow: 0 0 8px #ff4d4d;
+  }
+  100% {
+    color: #ff4d4d;
+    transform: scale(1.2);
+    text-shadow: none;
+  }
+}
+
+@keyframes enclitic-correct {
+  0% {
+    background-color: #ccc;
+    transform: scale(1);
+  }
+  50% {
+    background-color: #c8f7c5;
+    transform: scale(1.15);
+  }
+  100% {
+    background-color: #a8e6a3;
+    transform: scale(1);
+  }
+}
+
+@keyframes enclitic-incorrect {
+  0% {
+    background-color: #ccc;
+    transform: scale(1);
+  }
+  50% {
+    background-color: #f9c0c0;
+    transform: scale(1.15);
+  }
+  100% {
+    background-color: #f8b3b3;
+    transform: scale(1);
+  }
+}
+
 .main-container {
   display: flex;
   flex-direction: column;
@@ -99,11 +165,11 @@ body {
 }
 
 .correct {
-  background-color: #a8e6a3 !important;
+  animation: enclitic-correct 0.8s forwards;
 }
 
 .incorrect {
-  background-color: #f8b3b3 !important;
+  animation: enclitic-incorrect 0.8s forwards;
 }
 
 button {
@@ -175,13 +241,11 @@ h1 {
 }
 
 .correct-heading {
-  color: #7CFC00;
-  transform: scale(1.2);
+  animation: heading-correct 0.8s forwards;
 }
 
 .incorrect-heading {
-  color: #ff4d4d;
-  transform: scale(1.2);
+  animation: heading-incorrect 0.8s forwards;
 }
 
 .score-column {
