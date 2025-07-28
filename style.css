@@ -10,46 +10,68 @@ body {
 }
 
 @keyframes heading-correct {
-  0%, 100% {
+  0% {
     color: white;
     transform: scale(1);
+    text-shadow: none;
   }
   50% {
+    color: #adff2f;
+    transform: scale(1.35);
+    text-shadow: 0 0 8px #7CFC00;
+  }
+  100% {
     color: #7CFC00;
-    transform: scale(1.15);
+    transform: scale(1.2);
+    text-shadow: none;
   }
 }
 
 @keyframes heading-incorrect {
-  0%, 100% {
+  0% {
     color: white;
     transform: scale(1);
+    text-shadow: none;
   }
   50% {
+    color: #ff6666;
+    transform: scale(1.35);
+    text-shadow: 0 0 8px #ff4d4d;
+  }
+  100% {
     color: #ff4d4d;
-    transform: scale(1.15);
+    transform: scale(1.2);
+    text-shadow: none;
   }
 }
 
 @keyframes enclitic-correct {
-  0%, 100% {
+  0% {
     background-color: #ccc;
     transform: scale(1);
   }
   50% {
-    background-color: #a8e6a3;
+    background-color: #c8f7c5;
     transform: scale(1.15);
+  }
+  100% {
+    background-color: #a8e6a3;
+    transform: scale(1);
   }
 }
 
 @keyframes enclitic-incorrect {
-  0%, 100% {
+  0% {
     background-color: #ccc;
     transform: scale(1);
   }
   50% {
-    background-color: #f8b3b3;
+    background-color: #f9c0c0;
     transform: scale(1.15);
+  }
+  100% {
+    background-color: #f8b3b3;
+    transform: scale(1);
   }
 }
 
@@ -143,11 +165,11 @@ body {
 }
 
 .correct {
-  animation: enclitic-correct 0.8s ease;
+  animation: enclitic-correct 0.8s forwards;
 }
 
 .incorrect {
-  animation: enclitic-incorrect 0.8s ease;
+  animation: enclitic-incorrect 0.8s forwards;
 }
 
 button {
@@ -219,11 +241,11 @@ h1 {
 }
 
 .correct-heading {
-  animation: heading-correct 0.8s ease;
+  animation: heading-correct 0.8s forwards;
 }
 
 .incorrect-heading {
-  animation: heading-incorrect 0.8s ease;
+  animation: heading-incorrect 0.8s forwards;
 }
 
 .score-column {
