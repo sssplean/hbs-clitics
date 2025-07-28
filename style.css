@@ -277,10 +277,12 @@ h1 {
 
 .left-side {
   left: 2rem;
+  margin-left: 4rem;
 }
 
 .right-side {
   right: 2rem;
+  margin-right: 4rem;
 }
 
 .score-heading {
