@@ -216,8 +216,8 @@ body {
 
 button {
   padding: 0.6rem 1.5rem;
-  background-color: #74b9ff;
   color: black;
+  font-style: italic;
   border: none;
   border-radius: 10px;
   cursor: pointer;
