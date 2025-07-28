@@ -226,6 +226,14 @@ button {
   transition: background-color 0.3s ease, transform 0.3s ease;
 }
 
+#check-button {
+  background-color: #74ffa6;
+}
+
+#new-example {
+  background-color: #74ffee;
+}
+
 .buttons {
   display: flex;
   flex-direction: column;

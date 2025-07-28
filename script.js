@@ -182,9 +182,43 @@
      scoreIncorrect = 0;
       const ch = document.getElementById('correct-heading');
       const ih = document.getElementById('incorrect-heading');
+      const ct = document.getElementById('correct-tally');
+      const it = document.getElementById('incorrect-tally');
+      const st = document.getElementById('score-text');
+
+      const chColor = getComputedStyle(ch).color;
+      const ihColor = getComputedStyle(ih).color;
+      ch.style.color = chColor;
+      ih.style.color = ihColor;
+      ch.style.transform = 'scale(1.2)';
+      ih.style.transform = 'scale(1.2)';
+
       ch.classList.remove('correct-heading', 'incorrect-heading');
       ih.classList.remove('correct-heading', 'incorrect-heading');
-      updateScoreboard(null);
+      ch.classList.add('heading-reset');
+      ih.classList.add('heading-reset');
+
+      [ct, it, st].forEach(el => el.classList.add('fade-out'));
+      setTimeout(() => {
+        updateScoreboard(null);
+        [ct, it, st].forEach(el => {
+          el.classList.remove('fade-out');
+          el.classList.add('fade-in');
+        });
+        setTimeout(() => {
+          [ct, it, st].forEach(el => el.classList.remove('fade-in'));
+        }, 300);
+      }, 300);
+
+      setTimeout(() => {
+        ch.classList.remove('heading-reset');
+        ih.classList.remove('heading-reset');
+        ch.style.color = '';
+        ih.style.color = '';
+        ch.style.transform = '';
+        ih.style.transform = '';
+      }, 600);
+
       loadExample(true);
    }
 
