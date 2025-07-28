@@ -9,6 +9,50 @@ body {
   align-items: flex-start;
 }
 
+@keyframes heading-correct {
+  0%, 100% {
+    color: white;
+    transform: scale(1);
+  }
+  50% {
+    color: #7CFC00;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes heading-incorrect {
+  0%, 100% {
+    color: white;
+    transform: scale(1);
+  }
+  50% {
+    color: #ff4d4d;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes enclitic-correct {
+  0%, 100% {
+    background-color: #ccc;
+    transform: scale(1);
+  }
+  50% {
+    background-color: #a8e6a3;
+    transform: scale(1.15);
+  }
+}
+
+@keyframes enclitic-incorrect {
+  0%, 100% {
+    background-color: #ccc;
+    transform: scale(1);
+  }
+  50% {
+    background-color: #f8b3b3;
+    transform: scale(1.15);
+  }
+}
+
 .main-container {
   display: flex;
   flex-direction: column;
@@ -99,11 +143,11 @@ body {
 }
 
 .correct {
-  background-color: #a8e6a3 !important;
+  animation: enclitic-correct 0.8s ease;
 }
 
 .incorrect {
-  background-color: #f8b3b3 !important;
+  animation: enclitic-incorrect 0.8s ease;
 }
 
 button {
@@ -175,13 +219,11 @@ h1 {
 }
 
 .correct-heading {
-  color: #7CFC00;
-  transform: scale(1.2);
+  animation: heading-correct 0.8s ease;
 }
 
 .incorrect-heading {
-  color: #ff4d4d;
-  transform: scale(1.2);
+  animation: heading-incorrect 0.8s ease;
 }
 
 .score-column {
