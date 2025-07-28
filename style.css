@@ -45,6 +45,16 @@ body {
   }
 }
 
+@keyframes heading-reset {
+  from {
+    transform: scale(1.2);
+  }
+  to {
+    color: white;
+    transform: scale(1);
+  }
+}
+
 @keyframes enclitic-correct {
   0% {
     background-color: #ccc;
@@ -270,7 +280,7 @@ h1 {
   border-bottom: 2px dashed #fff;
   padding-bottom: 0.25rem;
   font-family: 'Gloria Hallelujah', cursive;
-  transition: transform 0.4s ease, color 0.4s ease;
+  transition: transform 0.6s ease, color 0.6s ease;
 }
 
 .correct-heading {
@@ -279,6 +289,10 @@ h1 {
 
 .incorrect-heading {
   animation: heading-incorrect 0.8s forwards;
+}
+
+.heading-reset {
+  animation: heading-reset 0.6s forwards;
 }
 
 .score-column {

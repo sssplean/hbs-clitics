@@ -185,7 +185,7 @@
       ch.classList.remove('correct-heading', 'incorrect-heading');
       ih.classList.remove('correct-heading', 'incorrect-heading');
       updateScoreboard(null);
-      loadExample();
+      loadExample(true);
    }
 
    function loadExample(animated = false) {
@@ -252,6 +252,12 @@
       if (animated) {
         ch.classList.remove('correct-heading', 'incorrect-heading');
         ih.classList.remove('correct-heading', 'incorrect-heading');
+        ch.classList.add('heading-reset');
+        ih.classList.add('heading-reset');
+        setTimeout(() => {
+          ch.classList.remove('heading-reset');
+          ih.classList.remove('heading-reset');
+        }, 600);
         [sentence, encliticOptions, translationEl].forEach(el => el.classList.add('fade-out'));
         setTimeout(() => {
           [sentence, encliticOptions, translationEl].forEach(el => {
