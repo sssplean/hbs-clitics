@@ -185,65 +185,94 @@
       ch.classList.remove('correct-heading', 'incorrect-heading');
       ih.classList.remove('correct-heading', 'incorrect-heading');
       updateScoreboard(null);
-      loadExample();
+      loadExample(true);
    }
 
-    function loadExample() {
-      document.getElementById('check-button').disabled = false;
-      insertedMap = {};
+   function loadExample(animated = false) {
+      const checkBtn = document.getElementById('check-button');
       const sentence = document.getElementById('sentence');
       const encliticOptions = document.getElementById('encliticOptions');
       const ch = document.getElementById('correct-heading');
       const ih = document.getElementById('incorrect-heading');
-      sentence.innerHTML = '';
-      encliticOptions.innerHTML = '';
-      ch.classList.remove('correct-heading', 'incorrect-heading');
-      ih.classList.remove('correct-heading', 'incorrect-heading');
-
-      currentExample = encliticsExamples[Math.floor(Math.random() * encliticsExamples.length)];
-
       const translationEl = document.getElementById('translation');
-      translationEl.textContent = currentExample.translation || '';
 
-      const firstSlot = createDropSlot(1);
-      sentence.appendChild(firstSlot);
+      const build = () => {
+        checkBtn.disabled = false;
+        insertedMap = {};
+        sentence.innerHTML = '';
+        encliticOptions.innerHTML = '';
+        ch.classList.remove('correct-heading', 'incorrect-heading');
+        ih.classList.remove('correct-heading', 'incorrect-heading');
 
-      currentExample.parts.forEach((word, i) => {
-        const wordBlock = document.createElement('div');
-        wordBlock.className = 'word-block';
-        wordBlock.textContent = word;
-        sentence.appendChild(wordBlock);
+        currentExample = encliticsExamples[Math.floor(Math.random() * encliticsExamples.length)];
 
-        const dropSlot = createDropSlot(i + 2);
-        sentence.appendChild(dropSlot);
-      });
+        translationEl.textContent = currentExample.translation || '';
 
-      // Create draggable enclitics
-      const allOptions = [...currentExample.enclitics, ...currentExample.distractors].sort(() => Math.random() - 0.5);
-      allOptions.forEach(text => createOption(text));
+        const firstSlot = createDropSlot(1);
+        sentence.appendChild(firstSlot);
 
-      // Allow dropping enclitics back to bank
-      encliticOptions.ondragover = e => e.preventDefault();
-      encliticOptions.ondrop = e => {
-        e.preventDefault();
-        const enclitic = e.dataTransfer.getData('text/plain');
-        const source = e.dataTransfer.getData('source');
-        const from = e.dataTransfer.getData('from');
+        currentExample.parts.forEach((word, i) => {
+          const wordBlock = document.createElement('div');
+          wordBlock.className = 'word-block';
+          wordBlock.textContent = word;
+          sentence.appendChild(wordBlock);
 
-        if (source === 'slot' && draggedEl) {
-          const slot = draggedEl.parentElement;
-          draggedEl.remove();
-          slot.classList.remove('has-enclitic');
-          const arr = insertedMap[from] || [];
-          insertedMap[from] = arr.filter(el => el !== draggedEl);
-          if (!insertedMap[from].length) delete insertedMap[from];
-          removeSlotIfNeeded(slot);
-          const baseFrom = Math.floor(Math.abs(parseFloat(from)));
-          cleanupAfterRemoval(baseFrom);
-          draggedEl = null;
-          createOption(enclitic);
-        }
+          const dropSlot = createDropSlot(i + 2);
+          sentence.appendChild(dropSlot);
+        });
+
+        // Create draggable enclitics
+        const allOptions = [...currentExample.enclitics, ...currentExample.distractors].sort(() => Math.random() - 0.5);
+        allOptions.forEach(text => createOption(text));
+
+        // Allow dropping enclitics back to bank
+        encliticOptions.ondragover = e => e.preventDefault();
+        encliticOptions.ondrop = e => {
+          e.preventDefault();
+          const enclitic = e.dataTransfer.getData('text/plain');
+          const source = e.dataTransfer.getData('source');
+          const from = e.dataTransfer.getData('from');
+
+          if (source === 'slot' && draggedEl) {
+            const slot = draggedEl.parentElement;
+            draggedEl.remove();
+            slot.classList.remove('has-enclitic');
+            const arr = insertedMap[from] || [];
+            insertedMap[from] = arr.filter(el => el !== draggedEl);
+            if (!insertedMap[from].length) delete insertedMap[from];
+            removeSlotIfNeeded(slot);
+            const baseFrom = Math.floor(Math.abs(parseFloat(from)));
+            cleanupAfterRemoval(baseFrom);
+            draggedEl = null;
+            createOption(enclitic);
+          }
+        };
       };
+
+      if (animated) {
+        ch.classList.remove('correct-heading', 'incorrect-heading');
+        ih.classList.remove('correct-heading', 'incorrect-heading');
+        ch.classList.add('heading-reset');
+        ih.classList.add('heading-reset');
+        setTimeout(() => {
+          ch.classList.remove('heading-reset');
+          ih.classList.remove('heading-reset');
+        }, 600);
+        [sentence, encliticOptions, translationEl].forEach(el => el.classList.add('fade-out'));
+        setTimeout(() => {
+          [sentence, encliticOptions, translationEl].forEach(el => {
+            el.classList.remove('fade-out');
+          });
+          build();
+          [sentence, encliticOptions, translationEl].forEach(el => el.classList.add('fade-in'));
+          setTimeout(() => {
+            [sentence, encliticOptions, translationEl].forEach(el => el.classList.remove('fade-in'));
+          }, 300);
+        }, 300);
+        return;
+      }
+
+      build();
     }
 
     function createDropSlot(index) {
