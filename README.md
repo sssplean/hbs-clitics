@@ -1,7 +1,7 @@
-# HBS Enclitics
+# HBS Clitics
 
 This repository contains a small interactive page for practicing the placement of
-Serbo‑Croatian enclitics. The exercise logic and example sentences are entirely
+Serbo‑Croatian clitics. The exercise logic and example sentences are entirely
 client side, so you only need to open `index.html` in a modern browser.
 
 ## Prerequisites

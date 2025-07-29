@@ -1,5 +1,5 @@
     let currentExample = {};
-    // key: slot index, value: array of enclitic elements in that slot
+    // key: slot index, value: array of clitic elements in that slot
     let insertedMap = {};
     // currently dragged element when moving from a slot
     let draggedEl = null;
@@ -84,7 +84,7 @@
 
           function removeSlotIfNeeded(slot) {
         if (!slot || slot.children.length) return;
-        slot.classList.remove('has-enclitic');
+        slot.classList.remove('has-clitic');
         const parent = slot.parentElement;
         const idx = parseFloat(slot.dataset.index);
         const base = Math.floor(idx);
@@ -92,12 +92,12 @@
         const sameBaseSlots = Array.from(parent.querySelectorAll('.drop-slot'))
           .filter(s => Math.floor(parseFloat(s.dataset.index)) === base);
         const subSlots = sameBaseSlots.filter(s => parseFloat(s.dataset.index) !== base);
-        const baseHasEnclitic = insertedMap[base] && insertedMap[base].length;
+        const baseHasClitic = insertedMap[base] && insertedMap[base].length;
 
         if (idx === base) {
           if (subSlots.length) {
             const last = subSlots[subSlots.length - 1];
-            if (!baseHasEnclitic && last.children.length === 0) {
+            if (!baseHasClitic && last.children.length === 0) {
               parent.removeChild(last);
               delete insertedMap[last.dataset.index];
             }
@@ -106,7 +106,7 @@
         }
 
         if (subSlots.length === 1) {
-          if (!baseHasEnclitic) {
+          if (!baseHasClitic) {
             parent.removeChild(slot);
             delete insertedMap[slot.dataset.index];
           }
@@ -134,21 +134,21 @@
       }
 
     function optionExists(text) {
-      return Array.from(document.querySelectorAll('.enclitic-option'))
+      return Array.from(document.querySelectorAll('.clitic-option'))
         .some(opt => opt.textContent === text);
     }
 
     function createOption(text) {
       if (optionExists(text)) return;
       const opt = document.createElement('div');
-      opt.className = 'enclitic-option';
+      opt.className = 'clitic-option';
       opt.textContent = text;
       opt.draggable = true;
       opt.addEventListener('dragstart', e => {
         e.dataTransfer.setData('text/plain', text);
         e.dataTransfer.setData('source', 'bank');
       });
-      document.getElementById('encliticOptions').appendChild(opt);
+      document.getElementById('cliticOptions').appendChild(opt);
     }
 
     function renderTally(count) {
@@ -272,7 +272,7 @@
       autoTimer = null;
       const checkBtn = document.getElementById('check-button');
       const sentence = document.getElementById('sentence');
-      const encliticOptions = document.getElementById('encliticOptions');
+      const cliticOptions = document.getElementById('cliticOptions');
       const ch = document.getElementById('correct-heading');
       const ih = document.getElementById('incorrect-heading');
       const translationEl = document.getElementById('translation');
@@ -281,11 +281,11 @@
         checkBtn.disabled = false;
         insertedMap = {};
         sentence.innerHTML = '';
-        encliticOptions.innerHTML = '';
+        cliticOptions.innerHTML = '';
         ch.classList.remove('correct-heading', 'incorrect-heading');
         ih.classList.remove('correct-heading', 'incorrect-heading');
 
-        currentExample = encliticsExamples[Math.floor(Math.random() * encliticsExamples.length)];
+        currentExample = cliticsExamples[Math.floor(Math.random() * cliticsExamples.length)];
 
         updateTranslation();
 
@@ -302,22 +302,22 @@
           sentence.appendChild(dropSlot);
         });
 
-        // Create draggable enclitics
-        const allOptions = [...currentExample.enclitics, ...currentExample.distractors].sort(() => Math.random() - 0.5);
+        // Create draggable clitics
+        const allOptions = [...currentExample.clitics, ...currentExample.distractors].sort(() => Math.random() - 0.5);
         allOptions.forEach(text => createOption(text));
 
-        // Allow dropping enclitics back to bank
-        encliticOptions.ondragover = e => e.preventDefault();
-        encliticOptions.ondrop = e => {
+        // Allow dropping clitics back to bank
+        cliticOptions.ondragover = e => e.preventDefault();
+        cliticOptions.ondrop = e => {
           e.preventDefault();
-          const enclitic = e.dataTransfer.getData('text/plain');
+          const clitic = e.dataTransfer.getData('text/plain');
           const source = e.dataTransfer.getData('source');
           const from = e.dataTransfer.getData('from');
 
           if (source === 'slot' && draggedEl) {
             const slot = draggedEl.parentElement;
             draggedEl.remove();
-            slot.classList.remove('has-enclitic');
+            slot.classList.remove('has-clitic');
             const arr = insertedMap[from] || [];
             insertedMap[from] = arr.filter(el => el !== draggedEl);
             if (!insertedMap[from].length) delete insertedMap[from];
@@ -325,7 +325,7 @@
             const baseFrom = Math.floor(Math.abs(parseFloat(from)));
             cleanupAfterRemoval(baseFrom);
             draggedEl = null;
-            createOption(enclitic);
+            createOption(clitic);
           }
         };
       };
@@ -344,15 +344,15 @@
           setTimeout(() => {
             resetList.forEach(h => h.classList.remove('heading-reset'));
           }, 600);
-        [sentence, encliticOptions, translationEl].forEach(el => el.classList.add('fade-out'));
+        [sentence, cliticOptions, translationEl].forEach(el => el.classList.add('fade-out'));
         setTimeout(() => {
-          [sentence, encliticOptions, translationEl].forEach(el => {
+          [sentence, cliticOptions, translationEl].forEach(el => {
             el.classList.remove('fade-out');
           });
           build();
-          [sentence, encliticOptions, translationEl].forEach(el => el.classList.add('fade-in'));
+          [sentence, cliticOptions, translationEl].forEach(el => el.classList.add('fade-in'));
           setTimeout(() => {
-            [sentence, encliticOptions, translationEl].forEach(el => el.classList.remove('fade-in'));
+            [sentence, cliticOptions, translationEl].forEach(el => el.classList.remove('fade-in'));
           }, 300);
         }, 300);
         return;
@@ -378,7 +378,7 @@
       dropSlot.addEventListener('drop', e => {
         e.preventDefault();
         dropSlot.classList.remove('over');
-        const enclitic = e.dataTransfer.getData('text/plain');
+        const clitic = e.dataTransfer.getData('text/plain');
         const source = e.dataTransfer.getData('source');
         const from = e.dataTransfer.getData('from');
         let idx = dropSlot.dataset.index;
@@ -406,7 +406,7 @@
             if (!insertedMap[from].length) delete insertedMap[from];
             const fromSlot = draggedEl.parentElement;
             draggedEl.remove();
-            fromSlot.classList.remove('has-enclitic');
+            fromSlot.classList.remove('has-clitic');
 
           const movingBaseLeft =
             !from.includes('.') && idx.startsWith('-') &&
@@ -453,10 +453,10 @@
             }
           }
 
-        // Remove same enclitic from other slots (only one instance allowed)
+        // Remove same clitic from other slots (only one instance allowed)
         for (const idx in insertedMap) {
           const arr = insertedMap[idx];
-          const found = arr.find(el => el.textContent === enclitic);
+          const found = arr.find(el => el.textContent === clitic);
           if (found) {
             found.remove();
             insertedMap[idx] = arr.filter(el => el !== found);
@@ -465,13 +465,13 @@
         }
 
         const enclEl = document.createElement('div');
-        enclEl.className = 'inserted-enclitic';
-        enclEl.textContent = enclitic;
+        enclEl.className = 'inserted-clitic';
+        enclEl.textContent = clitic;
         enclEl.draggable = true;
 
         enclEl.addEventListener('dragstart', ev => {
           draggedEl = enclEl;
-          ev.dataTransfer.setData('text/plain', enclitic);
+          ev.dataTransfer.setData('text/plain', clitic);
           ev.dataTransfer.setData('source', 'slot');
           ev.dataTransfer.setData('from', dropSlot.dataset.index);
         });
@@ -485,12 +485,12 @@
           removeSlotIfNeeded(dropSlot);
           const baseIdx = Math.floor(Math.abs(parseFloat(i)));
           cleanupAfterRemoval(baseIdx);
-          if (dropSlot.parentElement) dropSlot.classList.remove('has-enclitic');
-          createOption(enclitic);
+          if (dropSlot.parentElement) dropSlot.classList.remove('has-clitic');
+          createOption(clitic);
         });
 
         dropSlot.appendChild(enclEl);
-        dropSlot.classList.add('has-enclitic');
+        dropSlot.classList.add('has-clitic');
         insertedMap[idx] = [enclEl];
         if (!idx.toString().includes('.')) {
           ensureLeftSlot(Math.abs(parseInt(idx)), dropSlot);
@@ -502,9 +502,9 @@
 
         // Remove from bank if source is bank
         if (source === 'bank') {
-          const options = document.querySelectorAll('.enclitic-option');
+          const options = document.querySelectorAll('.clitic-option');
           options.forEach(opt => {
-            if (opt.textContent === enclitic) opt.remove();
+            if (opt.textContent === clitic) opt.remove();
           });
         }
 
@@ -531,7 +531,7 @@
           });
         });
 
-      const expectedPairs = currentExample.enclitics.map((e, i) => [currentExample.correctIndexes[i], e]);
+      const expectedPairs = currentExample.clitics.map((e, i) => [currentExample.correctIndexes[i], e]);
       const expectedSet = new Set(expectedPairs.map(p => `${p[0]}|${p[1]}`));
       const isCorrect = insertedPairs.length === expectedPairs.length &&
         insertedPairs.every(p => expectedSet.has(`${p[0]}|${p[1]}`));
