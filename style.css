@@ -455,7 +455,5 @@ h1 {
 }
 
 #auto-delay-button svg path {
-  transform-box: fill-box;
-  transform-origin: center;
-  transform: scale(1.15);
+  transform: scale(1.29);
 }
