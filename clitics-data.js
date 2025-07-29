@@ -1,4 +1,4 @@
-const encliticsExamples = [
+const cliticsExamples = [
   {
     "parts": ["Petar", "juče", "dao", "poklon", "dijete"],
     "clitics": ["mu", "je", "za"],
