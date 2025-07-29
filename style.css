@@ -379,6 +379,8 @@ h1 {
   font-family: 'Gloria Hallelujah', cursive;
   display: flex;
   align-items: center;
+  justify-content: center;
+  position: relative;
   gap: 0.5rem;
 }
 
@@ -386,17 +388,32 @@ h1 {
   width: 2rem;
   height: 2rem;
   padding: 0;
-  border-radius: 6px;
+  margin: 0;
+  border: none;
+  background: none;
+  box-shadow: none;
+  border-radius: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  position: absolute;
+  left: calc(-2rem - 0.5rem);
+  top: 50%;
+  transform: translateY(-50%);
 }
 #reset-score svg {
+  display: block;
   width: 100%;
   height: 100%;
   fill: #fff;
   stroke: #000;
   stroke-width: 1px;
+}
+
+#score-text {
+  display: inline-block;
+  width: 4ch;
+  text-align: center;
 }
 
 /* Check button container layout */
@@ -431,6 +448,7 @@ h1 {
 }
 
 #auto-delay-button svg {
+  display: block;
   width: 100%;
   height: 100%;
   fill: #fff;
