@@ -182,6 +182,9 @@
       const total = scoreCorrect + scoreIncorrect;
       const pct = total ? Math.round((scoreCorrect / total) * 100) : 0;
       document.getElementById('score-text').textContent = pct + '%';
+
+      const resetBtn = document.getElementById('reset-score');
+      if (resetBtn) resetBtn.disabled = total === 0;
     }
 
   function resetScore() {
@@ -302,15 +305,20 @@
         };
       };
 
-      if (animated) {
-        ch.classList.remove('correct-heading', 'incorrect-heading');
-        ih.classList.remove('correct-heading', 'incorrect-heading');
-        ch.classList.add('heading-reset');
-        ih.classList.add('heading-reset');
-        setTimeout(() => {
-          ch.classList.remove('heading-reset');
-          ih.classList.remove('heading-reset');
-        }, 600);
+        if (animated) {
+          const resetList = [];
+          if (ch.classList.contains('correct-heading') || ch.classList.contains('incorrect-heading')) {
+            ch.classList.remove('correct-heading', 'incorrect-heading');
+            resetList.push(ch);
+          }
+          if (ih.classList.contains('correct-heading') || ih.classList.contains('incorrect-heading')) {
+            ih.classList.remove('correct-heading', 'incorrect-heading');
+            resetList.push(ih);
+          }
+          resetList.forEach(h => h.classList.add('heading-reset'));
+          setTimeout(() => {
+            resetList.forEach(h => h.classList.remove('heading-reset'));
+          }, 600);
         [sentence, encliticOptions, translationEl].forEach(el => el.classList.add('fade-out'));
         setTimeout(() => {
           [sentence, encliticOptions, translationEl].forEach(el => {
