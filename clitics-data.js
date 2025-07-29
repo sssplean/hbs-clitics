@@ -4,7 +4,6 @@ const cliticsExamples = [
     "clitics": ["mu", "je", "za"],
     "distractors": ["ga", "se", "od"],
     "correctIndexes": [2, 2.1, 5],
-    "translation": "Петар дал ему вчера подарок для ребёнка.",
     "translations": {
       "ru": "Петар дал ему вчера подарок для ребёнка.",
       "uk": "Петар учора дав йому подарунок для дитини.",
@@ -20,7 +19,6 @@ const cliticsExamples = [
     "clitics": ["mi", "je"],
     "distractors": ["ga", "se", "li"],
     "correctIndexes": [2, 2.1],
-    "translation": "Ана вчера дала мне книгу.",
     "translations": {
       "ru": "Ана вчера дала мне книгу.",
       "uk": "Ана вчора дала мені книгу.",
@@ -36,7 +34,6 @@ const cliticsExamples = [
     "clitics": ["ti", "ga"],
     "distractors": ["mu", "je"],
     "correctIndexes": [3, 3.1],
-    "translation": "Завтра я тебе его дам.",
     "translations": {
       "ru": "Завтра я тебе его дам.",
       "uk": "Завтра я тобі його дам.",
@@ -52,7 +49,6 @@ const cliticsExamples = [
     "clitics": ["mu"],
     "distractors": ["je", "ga", "se"],
     "correctIndexes": [2],
-    "translation": "Она часто ему делает пирожные.",
     "translations": {
       "ru": "Она часто ему делает пирожные.",
       "uk": "Вона часто робить йому т\u0456стечка.",
