@@ -256,15 +256,18 @@
      const container = document.getElementById('language-buttons');
      if (!container) return;
      container.innerHTML = '';
-     availableLangs.forEach(lang => {
-       const btn = document.createElement('button');
-       btn.textContent = lang.toUpperCase();
-       btn.addEventListener('click', () => {
-         translationLang = lang;
-         updateTranslation();
-       });
-       container.appendChild(btn);
+
+     const btn = document.createElement('button');
+     btn.id = 'language-toggle';
+     btn.textContent = translationLang.toUpperCase();
+     btn.addEventListener('click', () => {
+       const idx = availableLangs.indexOf(translationLang);
+       const next = (idx + 1) % availableLangs.length;
+       translationLang = availableLangs[next];
+       btn.textContent = translationLang.toUpperCase();
+       updateTranslation();
      });
+     container.appendChild(btn);
   }
 
   function loadExample(animated = false) {

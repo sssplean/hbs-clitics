@@ -396,6 +396,7 @@ h1 {
   justify-content: center;
   position: relative;
   gap: 0.5rem;
+  padding-left: calc(2rem + 0.5rem);
 }
 
 #reset-score {
@@ -411,7 +412,7 @@ h1 {
   align-items: center;
   justify-content: center;
   position: absolute;
-  left: calc(-2rem - 0.5rem);
+  left: 0;
   top: 50%;
   transform: translateY(-50%);
 }
@@ -442,6 +443,7 @@ h1 {
   display: flex;
   justify-content: center;
   margin: 0.5rem;
+  padding-right: calc(2rem + 0.5rem);
 }
 
 .check-container button {
@@ -461,7 +463,7 @@ h1 {
   align-items: center;
   justify-content: center;
   position: absolute;
-  left: calc(100% + 0.5rem);
+  right: 0;
   top: 50%;
   transform: translateY(-50%);
 }
