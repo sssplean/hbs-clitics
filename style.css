@@ -449,9 +449,6 @@ h1 {
 
 #auto-delay-button svg {
   display: block;
-  width: 120%;
-  height: 120%;
-  margin: -10%;
   fill: #fff;
   stroke: #000;
   stroke-width: 1px;
