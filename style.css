@@ -410,6 +410,11 @@ h1 {
   stroke-width: 1px;
 }
 
+#reset-score:disabled svg {
+  fill: #888;
+  stroke: #888;
+}
+
 #score-text {
   display: inline-block;
   width: 4ch;
