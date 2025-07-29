@@ -462,3 +462,8 @@ h1 {
 #auto-delay-button svg path {
   transform: scale(1.29);
 }
+
+#reset-score svg path {
+  transform: scale(0.85);
+}
+
