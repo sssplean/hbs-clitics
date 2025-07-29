@@ -7,6 +7,8 @@
     let scoreIncorrect = 0;
     let autoPhase = 1;
     let autoTimer = null;
+    let translationLang = 'ru';
+    const availableLangs = ['ru', 'uk', 'en', 'de', 'es', 'fr'];
   const autoIcons = [
     `<svg view="0 0 24 24" width="100%" height="100%" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#000000" stroke-width="1"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 4C7.58172 4 4 7.58172 4 12C4 16.4183 7.58172 20 12 20C12.5523 20 13 20.4477 13 21C13 21.5523 12.5523 22 12 22C6.47715 22 2 17.5228 2 12C2 6.47715 6.47715 2 12 2C17.5228 2 22 6.47715 22 12C22 12.5523 21.5523 13 21 13C20.4477 13 20 12.5523 20 12C20 7.58172 16.4183 4 12 4ZM12 5C12.5523 5 13 5.44772 13 6V11.5858L13.7071 12.2929C14.0976 12.6834 14.0976 13.3166 13.7071 13.7071C13.3166 14.0976 12.6834 14.0976 12.2929 13.7071L11.2929 12.7071C11.1054 12.5196 11 12.2652 11 12V6C11 5.44772 11.4477 5 12 5ZM16.7071 15.2929C16.3166 14.9024 15.6834 14.9024 15.2929 15.2929C14.9024 15.6834 14.9024 16.3166 15.2929 16.7071L17.5858 19L15.2929 21.2929C14.9024 21.6834 14.9024 22.3166 15.2929 22.7071C15.6834 23.0976 16.3166 23.0976 16.7071 22.7071L19 20.4142L21.2929 22.7071C21.6834 23.0976 22.3166 23.0976 22.7071 22.7071C23.0976 22.3166 23.0976 21.6834 22.7071 21.2929L20.4142 19L22.7071 16.7071C23.0976 16.3166 23.0976 15.6834 22.7071 15.2929C22.3166 14.9024 21.6834 14.9024 21.2929 15.2929L19 17.5858L16.7071 15.2929Z" fill="#ffffff"></path></g></svg>`,
     `<svg view="0 0 24 24" width="100%" height="100%" fill="none" xmlns="http://www.w3.org/2000/svg" stroke="#000000" stroke-width="1"><g id="SVGRepo_bgCarrier" stroke-width="0"></g><g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g><g id="SVGRepo_iconCarrier"><path fill-rule="evenodd" clip-rule="evenodd" d="M4 12C4 7.58172 7.58172 4 12 4C16.4183 4 20 7.58172 20 12C20 16.4183 16.4183 20 12 20C7.58172 20 4 16.4183 4 12ZM12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2ZM13 6C13 5.44772 12.5523 5 12 5C11.4477 5 11 5.44772 11 6V12C11 12.2652 11.1054 12.5196 11.2929 12.7071L14.2929 15.7071C14.6834 16.0976 15.3166 16.0976 15.7071 15.7071C16.0976 15.3166 16.0976 14.6834 15.7071 14.2929L13 11.5858V6Z" fill="#ffffff"></path></g></svg>`,
@@ -237,12 +239,35 @@
       if (btn) btn.innerHTML = autoIcons[autoPhase - 1];
    }
 
-   function toggleAutoDelay() {
-      autoPhase = autoPhase % 3 + 1;
-      updateAutoButton();
-   }
+  function toggleAutoDelay() {
+     autoPhase = autoPhase % 3 + 1;
+     updateAutoButton();
+  }
 
-   function loadExample(animated = false) {
+  function updateTranslation() {
+     const el = document.getElementById('translation-text');
+     if (!el) return;
+     const tr = currentExample.translations &&
+       currentExample.translations[translationLang];
+     el.textContent = tr || currentExample.translation || '';
+  }
+
+  function createLanguageButtons() {
+     const container = document.getElementById('language-buttons');
+     if (!container) return;
+     container.innerHTML = '';
+     availableLangs.forEach(lang => {
+       const btn = document.createElement('button');
+       btn.textContent = lang.toUpperCase();
+       btn.addEventListener('click', () => {
+         translationLang = lang;
+         updateTranslation();
+       });
+       container.appendChild(btn);
+     });
+  }
+
+  function loadExample(animated = false) {
       clearTimeout(autoTimer);
       autoTimer = null;
       const checkBtn = document.getElementById('check-button');
@@ -262,7 +287,7 @@
 
         currentExample = encliticsExamples[Math.floor(Math.random() * encliticsExamples.length)];
 
-        translationEl.textContent = currentExample.translation || '';
+        updateTranslation();
 
         const firstSlot = createDropSlot(1);
         sentence.appendChild(firstSlot);
@@ -540,5 +565,6 @@
     document.addEventListener('DOMContentLoaded', () => {
       updateScoreboard(null);
       updateAutoButton();
+      createLanguageButtons();
       loadExample();
     });
