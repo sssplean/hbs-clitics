@@ -256,9 +256,9 @@
          const t = currentExample.translations[l];
          if (t && t.length > maxLen) maxLen = t.length;
        });
-       el.style.maxWidth = maxLen + 'ch';
+       el.style.minWidth = maxLen + 'ch';
       } else {
-       el.style.maxWidth = '';
+       el.style.minWidth = '';
       }
    }
 

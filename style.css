@@ -138,9 +138,6 @@ body {
   margin-bottom: 1rem;
   font-style: italic;
   text-align: center;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 #translation-text {
@@ -149,6 +146,7 @@ body {
 
 .language-button {
   font-style: normal;
+  margin-left: 0.5rem;
 }
 
 .language-button button {
@@ -446,11 +444,12 @@ h1 {
 
 /* Check button container layout */
 .check-container {
+  position: relative;
+  width: fit-content;
   display: flex;
   justify-content: center;
-  align-items: center;
-  gap: 0.5rem;
   margin: 0.5rem;
+  padding-right: calc(2rem + 0.5rem);
 }
 
 .check-container button {
@@ -469,6 +468,10 @@ h1 {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 #auto-delay-button svg {
