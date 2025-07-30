@@ -140,7 +140,6 @@ body {
   display: flex;
   justify-content: center;
   position: relative;
-  padding-right: calc(4ch + 0.5rem);
 }
 
 #translation-text {
@@ -457,7 +456,6 @@ h1 {
   display: flex;
   justify-content: center;
   margin: 0.5rem;
-  padding-right: calc(2rem + 0.5rem);
 }
 
 .check-container button {
