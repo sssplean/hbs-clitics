@@ -256,11 +256,11 @@
          const t = currentExample.translations[l];
          if (t && t.length > maxLen) maxLen = t.length;
        });
-       el.style.minWidth = maxLen + 'ch';
-     } else {
-       el.style.minWidth = '';
-     }
-  }
+       el.style.maxWidth = maxLen + 'ch';
+      } else {
+       el.style.maxWidth = '';
+      }
+   }
 
   function createLanguageButtons() {
      const container = document.getElementById('language-button');
@@ -269,12 +269,12 @@
 
      const btn = document.createElement('button');
      btn.id = 'language-toggle';
-     btn.textContent = translationLang.toUpperCase();
+    btn.textContent = '(' + translationLang.toUpperCase() + ')';
      btn.addEventListener('click', () => {
        const idx = availableLangs.indexOf(translationLang);
        const next = (idx + 1) % availableLangs.length;
        translationLang = availableLangs[next];
-       btn.textContent = translationLang.toUpperCase();
+      btn.textContent = '(' + translationLang.toUpperCase() + ')';
        updateTranslation();
      });
      container.appendChild(btn);
