@@ -137,7 +137,10 @@ body {
   color: white;
   margin-bottom: 1rem;
   font-style: italic;
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  padding-right: calc(4ch + 0.5rem);
 }
 
 #translation-text {
@@ -146,7 +149,12 @@ body {
 
 .language-button {
   font-style: normal;
-  margin-left: 0.5rem;
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4ch;
+  margin-left: 0;
 }
 
 .language-button button {
