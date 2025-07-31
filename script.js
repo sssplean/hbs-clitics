@@ -250,16 +250,7 @@
      const tr = currentExample.translations &&
        currentExample.translations[translationLang];
      el.textContent = tr || currentExample.translation || '';
-     if (currentExample.translations) {
-       let maxLen = 0;
-       availableLangs.forEach(l => {
-         const t = currentExample.translations[l];
-         if (t && t.length > maxLen) maxLen = t.length;
-       });
-       el.style.minWidth = maxLen + 'ch';
-      } else {
-       el.style.minWidth = '';
-      }
+    // allow the element to size naturally without a fixed minimum width
    }
 
   function createLanguageButtons() {
