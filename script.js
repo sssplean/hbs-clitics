@@ -250,7 +250,6 @@
      const tr = currentExample.translations &&
        currentExample.translations[translationLang];
      el.textContent = tr || currentExample.translation || '';
-    // allow the element to size naturally without a fixed minimum width
    }
 
   function createLanguageButtons() {
